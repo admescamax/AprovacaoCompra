@@ -1,0 +1,44 @@
+[
+  {
+    "etapa": "10",
+    "accepted": true,
+    "reason": "ERROR: API bloqueada por consumo indevido. Tente novamente em 1737 segundos.",
+    "isEtapaBad": false
+  },
+  {
+    "etapa": "20",
+    "accepted": true,
+    "reason": "ERROR: API bloqueada por consumo indevido. Tente novamente em 1736 segundos.",
+    "isEtapaBad": false
+  },
+  {
+    "etapa": "30",
+    "accepted": true,
+    "reason": "ERROR: API bloqueada por consumo indevido. Tente novamente em 1736 segundos.",
+    "isEtapaBad": false
+  },
+  {
+    "etapa": "40",
+    "accepted": true,
+    "reason": "ERROR: API bloqueada por consumo indevido. Tente novamente em 1735 segundos.",
+    "isEtapaBad": false
+  },
+  {
+    "etapa": "50",
+    "accepted": true,
+    "reason": "ERROR: API bloqueada por consumo indevido. Tente novamente em 1734 segundos.",
+    "isEtapaBad": false
+  },
+  {
+    "etapa": "70",
+    "accepted": true,
+    "reason": "ERROR: API bloqueada por consumo indevido. Tente novamente em 1734 segundos.",
+    "isEtapaBad": false
+  },
+  {
+    "etapa": "80",
+    "accepted": true,
+    "reason": "ERROR: API bloqueada por consumo indevido. Tente novamente em 1733 segundos.",
+    "isEtapaBad": false
+  }
+]

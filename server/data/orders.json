@@ -1,0 +1,1707 @@
+[
+  {
+    "id": "ESC-1771896307419",
+    "criadoEm": "2026-02-24T01:25:07.419Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPEL-011",
+        "quantidade": 1,
+        "preco_unitario": 180
+      },
+      {
+        "codigo": "VPB-001",
+        "quantidade": 1,
+        "preco_unitario": 3337.0275
+      }
+    ],
+    "pedido_compra": {
+      "numero": "27",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027727",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1771936002670",
+    "criadoEm": "2026-02-24T12:26:42.670Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPER-010",
+        "quantidade": 1,
+        "preco_unitario": 37.349999999999994
+      },
+      {
+        "codigo": "VPER-022",
+        "quantidade": 1,
+        "preco_unitario": 73.875
+      },
+      {
+        "codigo": "VPER-033n",
+        "quantidade": 1,
+        "preco_unitario": 182.25
+      }
+    ],
+    "pedido_compra": {
+      "numero": "28",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027732",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1771942629198",
+    "criadoEm": "2026-02-24T14:17:09.198Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPER-022",
+        "quantidade": 1,
+        "preco_unitario": 73.875
+      },
+      {
+        "codigo": "VPER-033n",
+        "quantidade": 1,
+        "preco_unitario": 182.25
+      }
+    ],
+    "pedido_compra": {
+      "numero": "29",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027737",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1771950047694",
+    "criadoEm": "2026-02-24T16:20:47.694Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPP-1477",
+        "quantidade": 25300,
+        "preco_unitario": 0.18285
+      }
+    ],
+    "pedido_compra": {
+      "numero": "30",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027740",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1771953474761",
+    "criadoEm": "2026-02-24T17:17:54.761Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPB-131",
+        "quantidade": 1,
+        "preco_unitario": 3218.49
+      }
+    ],
+    "pedido_compra": {
+      "numero": "31",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027745",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1771957172331",
+    "criadoEm": "2026-02-24T18:19:32.331Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPER-010",
+        "quantidade": 1,
+        "preco_unitario": 37.349999999999994
+      },
+      {
+        "codigo": "VPER-022",
+        "quantidade": 1,
+        "preco_unitario": 73.875
+      },
+      {
+        "codigo": "VP-1379",
+        "quantidade": 28300,
+        "preco_unitario": 0.235125
+      }
+    ],
+    "finalidade": "Aplicação",
+    "tipoFrete": "9",
+    "prioridade": "Urgente",
+    "pagamento": {
+      "valorEntrada": 2000,
+      "dataEntrada": "2026-03-06",
+      "parcelas": 4
+    },
+    "pedido_compra": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "ERROR: Tag [CMODALIDADE] não faz parte da estrutura do tipo complexo [frete_incluir]!"
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "pendente",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1771957762729",
+    "criadoEm": "2026-02-24T18:29:22.729Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPER-010",
+        "quantidade": 1,
+        "preco_unitario": 37.349999999999994
+      },
+      {
+        "codigo": "VPER-022",
+        "quantidade": 1,
+        "preco_unitario": 73.875
+      },
+      {
+        "codigo": "VP-1379",
+        "quantidade": 28300,
+        "preco_unitario": 0.235125
+      }
+    ],
+    "finalidade": "Aplicação",
+    "tipoFrete": "9",
+    "prioridade": "Urgente",
+    "pagamento": {
+      "valorEntrada": 2000,
+      "dataEntrada": "2026-03-06",
+      "parcelas": 4
+    },
+    "pedido_compra": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "ERROR: Tag [CMODALIDADE] não faz parte da estrutura do tipo complexo [frete_incluir]!"
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "pendente",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1771978542879",
+    "criadoEm": "2026-02-25T00:15:42.879Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPER-010",
+        "quantidade": 1,
+        "preco_unitario": 37.349999999999994
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "0",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 0,
+      "dataEntrada": null,
+      "parcelas": 1
+    },
+    "pedido_compra": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "Nenhum item válido encontrado para criar o pedido de compra na filial"
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "pendente",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1771979086089",
+    "criadoEm": "2026-02-25T00:24:46.089Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPER-010",
+        "quantidade": 1,
+        "preco_unitario": 37.349999999999994
+      },
+      {
+        "codigo": "VPER-033n",
+        "quantidade": 2,
+        "preco_unitario": 182.25
+      },
+      {
+        "codigo": "VPER-022",
+        "quantidade": 2,
+        "preco_unitario": 73.875
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "0",
+    "prioridade": "Urgente",
+    "pagamento": {
+      "valorEntrada": 200,
+      "dataEntrada": "2026-02-27",
+      "parcelas": 2
+    },
+    "pedido_compra": {
+      "numero": "34",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027750",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1771981026285",
+    "criadoEm": "2026-02-25T00:57:06.285Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPEL-004",
+        "quantidade": 1,
+        "preco_unitario": 330
+      }
+    ],
+    "finalidade": "Aplicação",
+    "tipoFrete": "9",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 100,
+      "dataEntrada": "2026-03-04",
+      "parcelas": 8
+    },
+    "pedido_compra": {
+      "numero": "35",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "ERROR: Tag [OBS] não faz parte da estrutura do tipo complexo [informacoes_adicionais]!"
+    }
+  },
+  {
+    "id": "ESC-1771981186568",
+    "criadoEm": "2026-02-25T00:59:46.568Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPEL-011",
+        "quantidade": 1,
+        "preco_unitario": 180
+      }
+    ],
+    "finalidade": "Aplicação",
+    "tipoFrete": "9",
+    "prioridade": "Balcão",
+    "pagamento": {
+      "valorEntrada": 100,
+      "dataEntrada": "2026-03-04",
+      "parcelas": 8
+    },
+    "pedido_compra": {
+      "numero": "36",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "ERROR: Tag [COBS] não faz parte da estrutura do tipo complexo [cabecalho]!"
+    }
+  },
+  {
+    "id": "ESC-1771981569202",
+    "criadoEm": "2026-02-25T01:06:09.202Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPEL-011",
+        "quantidade": 1,
+        "preco_unitario": 180
+      }
+    ],
+    "finalidade": "Aplicação",
+    "tipoFrete": "9",
+    "prioridade": "Balcão",
+    "pagamento": {
+      "valorEntrada": 100,
+      "dataEntrada": "2026-03-04",
+      "parcelas": 8
+    },
+    "pedido_compra": {
+      "numero": "37",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "ERROR: Tag [OBS_INTERNAS] não faz parte da estrutura do tipo complexo [observacoes]!"
+    }
+  },
+  {
+    "id": "ESC-1772025917693",
+    "criadoEm": "2026-02-25T13:25:17.694Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPER-108n",
+        "quantidade": 1,
+        "preco_unitario": 487.5
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "1",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 200,
+      "dataEntrada": "2026-02-26",
+      "parcelas": 2
+    },
+    "pedido_compra": {
+      "numero": "38",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027754",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1772027177507",
+    "criadoEm": "2026-02-25T13:46:17.507Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPER-033n",
+        "quantidade": 1,
+        "preco_unitario": 182.25
+      }
+    ],
+    "finalidade": "Aplicação",
+    "tipoFrete": "9",
+    "prioridade": "Balcão",
+    "pagamento": {
+      "valorEntrada": 50,
+      "dataEntrada": "2026-02-26",
+      "parcelas": 2
+    },
+    "pedido_compra": {
+      "numero": "39",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027757",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1772046840062",
+    "criadoEm": "2026-02-25T19:14:00.062Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPEL-056n",
+        "quantidade": 1,
+        "preco_unitario": 63.6075
+      },
+      {
+        "codigo": "VPEL-017",
+        "quantidade": 1,
+        "preco_unitario": 706.5
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "9",
+    "prioridade": "Urgente",
+    "pagamento": {
+      "valorEntrada": 100,
+      "dataEntrada": "2026-02-26",
+      "parcelas": 6
+    },
+    "pedido_compra": {
+      "numero": "40",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027769",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1772048257241",
+    "criadoEm": "2026-02-25T19:37:37.241Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPEL-011",
+        "quantidade": 1,
+        "preco_unitario": 180
+      },
+      {
+        "codigo": "VPEL-056n",
+        "quantidade": 1,
+        "preco_unitario": 63.6075
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "9",
+    "prioridade": "Urgente",
+    "pagamento": {
+      "valorEntrada": 100,
+      "dataEntrada": "2026-02-26",
+      "parcelas": 6
+    },
+    "pedido_compra": {
+      "numero": "41",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027772",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1772048728833",
+    "criadoEm": "2026-02-25T19:45:28.833Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPEL-004",
+        "quantidade": 1,
+        "preco_unitario": 330
+      }
+    ],
+    "finalidade": "Aplicação",
+    "tipoFrete": "9",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 100,
+      "dataEntrada": "2026-02-26",
+      "parcelas": 6
+    },
+    "pedido_compra": {
+      "numero": "42",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027773",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1772061969570",
+    "criadoEm": "2026-02-25T23:26:09.570Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPEL-115",
+        "quantidade": 2,
+        "preco_unitario": 65.67
+      },
+      {
+        "codigo": "VP-1389n",
+        "quantidade": 10000,
+        "preco_unitario": 0.21075
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "1",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 500,
+      "dataEntrada": "2026-02-27",
+      "parcelas": 10
+    },
+    "pedido_compra": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "Nenhum item válido encontrado para criar o pedido de compra na filial"
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "pendente",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1772064857346",
+    "criadoEm": "2026-02-26T00:14:17.346Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPEL-011",
+        "quantidade": 1,
+        "preco_unitario": 180
+      },
+      {
+        "codigo": "VPER-1672n",
+        "quantidade": 1,
+        "preco_unitario": 0
+      },
+      {
+        "codigo": "VPER-538",
+        "quantidade": 8,
+        "preco_unitario": 63
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "1",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 0,
+      "dataEntrada": null,
+      "parcelas": 1
+    },
+    "pedido_compra": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "ERROR: O preenchimento da tag [nValUnit] é obrigatório!"
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "pendente",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1772066523465",
+    "criadoEm": "2026-02-26T00:42:03.465Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPER-151",
+        "quantidade": 4,
+        "preco_unitario": 99.375,
+        "preco_original": 132.5
+      },
+      {
+        "codigo": "VPER-355",
+        "quantidade": 1,
+        "preco_unitario": 1763.1374999999998,
+        "preco_original": 2350.85
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "0",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 100,
+      "dataEntrada": "2026-02-27",
+      "parcelas": 4
+    },
+    "pedido_compra": {
+      "numero": "43",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027774",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1772115233717",
+    "criadoEm": "2026-02-26T14:13:53.717Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPER-010",
+        "quantidade": 1,
+        "preco_unitario": 37.349999999999994,
+        "preco_original": 49.8
+      },
+      {
+        "codigo": "VPER-022",
+        "quantidade": 1,
+        "preco_unitario": 73.875,
+        "preco_original": 98.5
+      }
+    ],
+    "finalidade": "Aplicação",
+    "tipoFrete": "9",
+    "prioridade": "Balcão",
+    "pagamento": {
+      "valorEntrada": 20,
+      "dataEntrada": "2026-02-27",
+      "parcelas": 2
+    },
+    "pedido_compra": {
+      "numero": "44",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027783",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1772121376445",
+    "criadoEm": "2026-02-26T15:56:16.445Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPER-010",
+        "quantidade": 2,
+        "preco_unitario": 37.349999999999994,
+        "preco_original": 49.8
+      },
+      {
+        "codigo": "VPER-033n",
+        "quantidade": 1,
+        "preco_unitario": 182.25,
+        "preco_original": 243
+      }
+    ],
+    "finalidade": "Aplicação",
+    "tipoFrete": "9",
+    "prioridade": "Urgente",
+    "pagamento": {
+      "valorEntrada": 100,
+      "dataEntrada": "2026-02-27",
+      "parcelas": 2
+    },
+    "pedido_compra": {
+      "numero": "45",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027786",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1772132264081",
+    "criadoEm": "2026-02-26T18:57:44.081Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPEL-004",
+        "quantidade": 1,
+        "preco_unitario": 330,
+        "preco_original": 440
+      },
+      {
+        "codigo": "VPEL-011",
+        "quantidade": 1,
+        "preco_unitario": 180,
+        "preco_original": 240
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "1",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 100,
+      "dataEntrada": "2026-03-03",
+      "parcelas": 3
+    },
+    "pedido_compra": {
+      "numero": "46",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027793",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1772215500785",
+    "criadoEm": "2026-02-27T18:05:00.786Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPEL-011",
+        "quantidade": 1,
+        "preco_unitario": 180,
+        "preco_original": 240
+      },
+      {
+        "codigo": "VPEL-014n",
+        "quantidade": 1,
+        "preco_unitario": 0,
+        "preco_original": 0
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "1",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 0,
+      "dataEntrada": null,
+      "parcelas": 1
+    },
+    "pedido_compra": {
+      "numero": "47",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "ERROR: Etapa [30] não disponível!"
+    }
+  },
+  {
+    "id": "ESC-1772215835766",
+    "criadoEm": "2026-02-27T18:10:35.766Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPER-010",
+        "quantidade": 1,
+        "preco_unitario": 37.349999999999994,
+        "preco_original": 49.8
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "1",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 0,
+      "dataEntrada": null,
+      "parcelas": 1
+    },
+    "pedido_compra": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "Falha ao listar produtos da Omie"
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "pendente",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1772220925937",
+    "criadoEm": "2026-02-27T19:35:25.938Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPEL-011",
+        "quantidade": 1,
+        "preco_unitario": 180,
+        "preco_original": 240
+      }
+    ],
+    "finalidade": "Aplicação",
+    "tipoFrete": "1",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 0,
+      "dataEntrada": null,
+      "parcelas": 3
+    },
+    "pedido_compra": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "Falha ao listar produtos da Omie"
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "pendente",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1772222117369",
+    "criadoEm": "2026-02-27T19:55:17.369Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPEL-011",
+        "quantidade": 1,
+        "preco_unitario": 180,
+        "preco_original": 240
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "2",
+    "prioridade": "Balcão",
+    "pagamento": {
+      "valorEntrada": 20,
+      "dataEntrada": "2026-03-02",
+      "parcelas": 3
+    },
+    "pedido_compra": {
+      "numero": "48",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "ERROR: API bloqueada por consumo indevido. Tente novamente em 1097 segundos."
+    }
+  },
+  {
+    "id": "ESC-1772550818739",
+    "criadoEm": "2026-03-03T15:13:38.739Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPER-010",
+        "quantidade": 3,
+        "preco_unitario": 37.349999999999994,
+        "preco_original": 49.8
+      },
+      {
+        "codigo": "VPER-022",
+        "quantidade": 2,
+        "preco_unitario": 73.875,
+        "preco_original": 98.5
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "1",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 0,
+      "dataEntrada": null,
+      "parcelas": 1
+    },
+    "pedido_compra": {
+      "numero": "49",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "ERROR: Etapa não permitida! Etapas disponíveis na tag [etapa]: 00, 10, 20, 30, 40, 50, 70 ou 80!"
+    }
+  },
+  {
+    "id": "ESC-1772551087669",
+    "criadoEm": "2026-03-03T15:18:07.669Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPER-010",
+        "quantidade": 6,
+        "preco_unitario": 37.349999999999994,
+        "preco_original": 49.8
+      },
+      {
+        "codigo": "VPER-022",
+        "quantidade": 2,
+        "preco_unitario": 73.875,
+        "preco_original": 98.5
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "1",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 0,
+      "dataEntrada": null,
+      "parcelas": 1
+    },
+    "pedido_compra": {
+      "numero": "50",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027851",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1772559176750",
+    "criadoEm": "2026-03-03T17:32:56.750Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPB-001",
+        "quantidade": 1,
+        "preco_unitario": 3337.0275,
+        "preco_original": 4449.37
+      },
+      {
+        "codigo": "VPB-004",
+        "quantidade": 1,
+        "preco_unitario": 1074.18,
+        "preco_original": 1432.24
+      }
+    ],
+    "finalidade": "Aplicação",
+    "tipoFrete": "0",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 1000,
+      "dataEntrada": "2026-03-05",
+      "parcelas": 4
+    },
+    "pedido_compra": {
+      "numero": "51",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027856",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1772560518539",
+    "criadoEm": "2026-03-03T17:55:18.539Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPB-010",
+        "quantidade": 1,
+        "preco_unitario": 693.6375,
+        "preco_original": 924.85
+      }
+    ],
+    "finalidade": "Aplicação",
+    "tipoFrete": "0",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 1000,
+      "dataEntrada": "2026-03-05",
+      "parcelas": 4
+    },
+    "pedido_compra": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "Nenhum item válido encontrado para criar o pedido de compra na filial"
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "pendente",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1772715172839",
+    "criadoEm": "2026-03-05T12:52:52.839Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPB-001",
+        "quantidade": 1,
+        "preco_unitario": 3337.0275,
+        "preco_original": 4449.37
+      }
+    ],
+    "finalidade": "Aplicação",
+    "tipoFrete": "1",
+    "prioridade": "Urgente",
+    "pagamento": {
+      "valorEntrada": 1000,
+      "dataEntrada": "2026-03-09",
+      "parcelas": 4
+    },
+    "pedido_compra": {
+      "numero": "53",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "ERROR: Etapa [30] não disponível!"
+    }
+  },
+  {
+    "id": "ESC-1772716416899",
+    "criadoEm": "2026-03-05T13:13:36.899Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPB-001",
+        "quantidade": 1,
+        "preco_unitario": 3337.0275,
+        "preco_original": 4449.37
+      }
+    ],
+    "finalidade": "Aplicação",
+    "tipoFrete": "1",
+    "prioridade": "Urgente",
+    "pagamento": {
+      "valorEntrada": 1000,
+      "dataEntrada": "2026-03-16",
+      "parcelas": 2
+    },
+    "pedido_compra": {
+      "numero": "54",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "ERROR: Etapa [30] não disponível!"
+    }
+  },
+  {
+    "id": "ESC-1772718770628",
+    "criadoEm": "2026-03-05T13:52:50.628Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPB-001",
+        "quantidade": 1,
+        "preco_unitario": 3337.0275,
+        "preco_original": 4449.37
+      }
+    ],
+    "finalidade": "Aplicação",
+    "tipoFrete": "1",
+    "prioridade": "Urgente",
+    "pagamento": {
+      "valorEntrada": 1000,
+      "dataEntrada": "2026-03-16",
+      "parcelas": 2
+    },
+    "pedido_compra": {
+      "numero": "55",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "ERROR: Etapa não permitida! Etapas disponíveis na tag [etapa]: 00, 10, 20, 30, 40, 50, 70 ou 80!"
+    }
+  },
+  {
+    "id": "ESC-1772719099885",
+    "criadoEm": "2026-03-05T13:58:19.885Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPB-001",
+        "quantidade": 1,
+        "preco_unitario": 3337.0275,
+        "preco_original": 4449.37
+      }
+    ],
+    "finalidade": "Aplicação",
+    "tipoFrete": "1",
+    "prioridade": "Urgente",
+    "pagamento": {
+      "valorEntrada": 1000,
+      "dataEntrada": "2026-03-16",
+      "parcelas": 2
+    },
+    "pedido_compra": {
+      "numero": "56",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "ERROR: Etapa [30] não disponível!"
+    }
+  },
+  {
+    "id": "ESC-1772719807471",
+    "criadoEm": "2026-03-05T14:10:07.471Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPB-001",
+        "quantidade": 1,
+        "preco_unitario": 3337.0275,
+        "preco_original": 4449.37
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "1",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 1000,
+      "dataEntrada": "2026-03-13",
+      "parcelas": 2
+    },
+    "pedido_compra": {
+      "numero": "57",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "ERROR: Etapa [30] não disponível!"
+    }
+  },
+  {
+    "id": "ESC-1772722379590",
+    "criadoEm": "2026-03-05T14:52:59.590Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPB-001",
+        "quantidade": 1,
+        "preco_unitario": 3337.0275,
+        "preco_original": 4449.37
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "1",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 0,
+      "dataEntrada": null,
+      "parcelas": 1
+    },
+    "pedido_compra": {
+      "numero": "58",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "ERROR: API bloqueada por consumo indevido. Tente novamente em 1389 segundos."
+    }
+  },
+  {
+    "id": "ESC-1772739733392",
+    "criadoEm": "2026-03-05T19:42:13.393Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPB-001",
+        "quantidade": 1,
+        "preco_unitario": 3337.0275,
+        "preco_original": 4449.37
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "1",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 0,
+      "dataEntrada": null,
+      "parcelas": 1
+    },
+    "pedido_compra": {
+      "numero": "59",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "ERROR: Etapa [30] não disponível!"
+    }
+  },
+  {
+    "id": "ESC-1772742199193",
+    "criadoEm": "2026-03-05T20:23:19.193Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPB-001",
+        "quantidade": 1,
+        "preco_unitario": 3337.0275,
+        "preco_original": 4449.37
+      }
+    ],
+    "finalidade": "Aplicação",
+    "tipoFrete": "9",
+    "prioridade": "Urgente",
+    "pagamento": {
+      "valorEntrada": 1000,
+      "dataEntrada": "2026-03-09",
+      "parcelas": 3
+    },
+    "pedido_compra": {
+      "numero": "60",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027905",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1772814015925",
+    "criadoEm": "2026-03-06T16:20:15.925Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPB-001",
+        "quantidade": 1,
+        "preco_unitario": 3337.0275,
+        "preco_original": 4449.37
+      }
+    ],
+    "finalidade": "Aplicação",
+    "tipoFrete": "0",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 1000,
+      "dataEntrada": "2026-04-03",
+      "parcelas": 2
+    },
+    "pedido_compra": {
+      "numero": "61",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027916",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1772821509238",
+    "criadoEm": "2026-03-06T18:25:09.239Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPER-010",
+        "quantidade": 10,
+        "preco_unitario": 37.349999999999994,
+        "preco_original": 49.8
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "1",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 0,
+      "dataEntrada": null,
+      "parcelas": 1
+    },
+    "pedido_compra": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "Nenhum item válido encontrado para criar o pedido de compra na filial"
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "pendente",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1772821960090",
+    "criadoEm": "2026-03-06T18:32:40.090Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPB-001",
+        "quantidade": 1,
+        "preco_unitario": 3337.0275,
+        "preco_original": 4449.37
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "1",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 0,
+      "dataEntrada": null,
+      "parcelas": 1
+    },
+    "pedido_compra": {
+      "numero": "62",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027921",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1773167578684",
+    "criadoEm": "2026-03-10T18:32:58.684Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPB-001",
+        "quantidade": 1,
+        "preco_unitario": 3337.0275,
+        "preco_original": 4449.37
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "9",
+    "prioridade": "Urgente",
+    "pagamento": {
+      "valorEntrada": 200,
+      "dataEntrada": "2026-03-13",
+      "parcelas": 1
+    },
+    "pedido_compra": {
+      "numero": "64",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "ERROR: O preenchimento da tag [det] obrigatório!"
+    }
+  },
+  {
+    "id": "ESC-1773170103765",
+    "criadoEm": "2026-03-10T19:15:03.766Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPB-001",
+        "quantidade": 1,
+        "preco_unitario": 3337.0275,
+        "preco_original": 4449.37
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "9",
+    "prioridade": "Urgente",
+    "pagamento": {
+      "valorEntrada": 200,
+      "dataEntrada": "2026-03-13",
+      "parcelas": 1
+    },
+    "pedido_compra": {
+      "numero": "65",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027967",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1773174796287",
+    "criadoEm": "2026-03-10T20:33:16.287Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPB-001",
+        "quantidade": 1,
+        "preco_unitario": 3337.0275,
+        "preco_original": 4449.37
+      }
+    ],
+    "finalidade": "Aplicação",
+    "tipoFrete": "0",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 500,
+      "dataEntrada": "2026-03-13",
+      "parcelas": 2
+    },
+    "pedido_compra": {
+      "numero": "66",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "ERROR: O preenchimento da tag [det] obrigatório!"
+    }
+  },
+  {
+    "id": "ESC-1773270444007",
+    "criadoEm": "2026-03-11T23:07:24.007Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPB-001",
+        "quantidade": 1,
+        "preco_unitario": 3337.0275,
+        "preco_original": 4449.37
+      },
+      {
+        "codigo": "VPB-004",
+        "quantidade": 2,
+        "preco_unitario": 1074.18,
+        "preco_original": 1432.24
+      },
+      {
+        "codigo": "VPB-005",
+        "quantidade": 2,
+        "preco_unitario": 625.6125,
+        "preco_original": 834.15
+      },
+      {
+        "codigo": "VPEL-014n",
+        "quantidade": 3,
+        "preco_unitario": 0,
+        "preco_original": 0
+      },
+      {
+        "codigo": "VPEL-016n",
+        "quantidade": 1,
+        "preco_unitario": 172.5,
+        "preco_original": 230
+      },
+      {
+        "codigo": "VPEL-011",
+        "quantidade": 4,
+        "preco_unitario": 180,
+        "preco_original": 240
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "1",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 0,
+      "dataEntrada": null,
+      "parcelas": 1
+    },
+    "pedido_compra": {
+      "numero": "67",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "ERROR: O preenchimento da tag [valor_unitario] é obrigatório!"
+    }
+  },
+  {
+    "id": "ESC-1773274130987",
+    "criadoEm": "2026-03-12T00:08:50.987Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VPB-001",
+        "quantidade": 1,
+        "preco_unitario": 3337.0275,
+        "preco_original": 4449.37
+      },
+      {
+        "codigo": "VPB-004",
+        "quantidade": 1,
+        "preco_unitario": 1074.18,
+        "preco_original": 1432.24
+      },
+      {
+        "codigo": "VPB-005",
+        "quantidade": 1,
+        "preco_unitario": 625.6125,
+        "preco_original": 834.15
+      },
+      {
+        "codigo": "VPB-009",
+        "quantidade": 1,
+        "preco_unitario": 610.545,
+        "preco_original": 814.06
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "2",
+    "prioridade": "Urgente",
+    "pagamento": {
+      "valorEntrada": 300,
+      "dataEntrada": "2026-03-20",
+      "parcelas": 11
+    },
+    "pedido_compra": {
+      "numero": "68",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027989",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1773322447915",
+    "criadoEm": "2026-03-12T13:34:07.915Z",
+    "unidade": "PICARRAS",
+    "itens": [
+      {
+        "codigo": "VP-1379",
+        "quantidade": 37520,
+        "preco_unitario": 0.235125,
+        "preco_original": 313.5
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "0",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 500,
+      "dataEntrada": "2026-03-19",
+      "parcelas": 4
+    },
+    "pedido_compra": {
+      "numero": "69",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000027996",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1773608213018",
+    "criadoEm": "2026-03-15T20:56:53.019Z",
+    "unidade": "SAOPAULO",
+    "itens": [
+      {
+        "codigo": "VPEL-021",
+        "quantidade": 1,
+        "preco_unitario": 262.5,
+        "preco_original": 350
+      },
+      {
+        "codigo": "VPEL-017",
+        "quantidade": 1,
+        "preco_unitario": 706.5,
+        "preco_original": 942
+      },
+      {
+        "codigo": "VPEL-016n",
+        "quantidade": 1,
+        "preco_unitario": 172.5,
+        "preco_original": 230
+      }
+    ],
+    "finalidade": "Revenda",
+    "tipoFrete": "1",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 0,
+      "dataEntrada": null,
+      "parcelas": 1
+    },
+    "pedido_compra": {
+      "numero": null,
+      "status": "erro",
+      "detalhe": "ERROR: Categoria não cadastrada para o Código [2.01.01] ! - Tag: [cCodCateg=2.01.01]!"
+    },
+    "pedido_venda": {
+      "numero": null,
+      "status": "pendente",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1774030889913",
+    "criadoEm": "2026-03-20T18:21:29.913Z",
+    "unidade": "FLORIANOPOLIS",
+    "itens": [
+      {
+        "codigo": "VPB-001",
+        "quantidade": 1,
+        "preco_unitario": 3337.0275,
+        "preco_original": 4449.37
+      }
+    ],
+    "finalidade": "Aplicação",
+    "tipoFrete": "2",
+    "prioridade": "Normal",
+    "pagamento": {
+      "valorEntrada": 200,
+      "dataEntrada": "2026-03-23",
+      "parcelas": 2
+    },
+    "pedido_compra": {
+      "numero": "58",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000028112",
+      "status": "ok",
+      "detalhe": null
+    }
+  },
+  {
+    "id": "ESC-1774546740201",
+    "criadoEm": "2026-03-26T17:39:00.201Z",
+    "unidade": "SAOPAULO",
+    "itens": [
+      {
+        "codigo": "VPEL-151",
+        "quantidade": 1,
+        "preco_unitario": 356.25,
+        "preco_original": 475
+      }
+    ],
+    "finalidade": "Aplicação",
+    "tipoFrete": "1",
+    "prioridade": "Urgente",
+    "pagamento": {
+      "valorEntrada": 100,
+      "dataEntrada": "2026-04-03",
+      "parcelas": 2
+    },
+    "pedido_compra": {
+      "numero": "57",
+      "status": "ok",
+      "detalhe": null
+    },
+    "pedido_venda": {
+      "numero": "000000000028192",
+      "status": "ok",
+      "detalhe": null
+    }
+  }
+]

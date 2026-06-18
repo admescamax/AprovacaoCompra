@@ -1,0 +1,75 @@
+
+=== PICARRAS (314 categorias) ===
+
+  CANDIDATAS PARA REVENDA:
+    cCodCateg=1.01.03      | Clientes - Revenda de Mercadoria
+    cCodCateg=1.03.01      | 4.902 - Devoluções de Compra de Mercadoria de Revenda
+    cCodCateg=1.06         | 3.3 -  RECEITA BRUTA DE REVENDA DE MERCADORIA
+    cCodCateg=1.06.99      | 3.301- Revenda de Mercadorias e Peças
+    cCodCateg=2.09.01      | 3.501 - Devolução de Revenda de Mercadorias e Peças
+    cCodCateg=2.10         | 4.2 - CUSTO DAS MERCADORIAS DE REVENDA
+    cCodCateg=2.10.99      | 4.201 - Custo das Mercadorias de Revenda
+
+  CANDIDATAS PARA APLICAÇÃO:
+    cCodCateg=2.01.01      | 4.104 - Custos das Mercadorias Aplicados em Serviços
+
+=== BRASILIA (367 categorias) ===
+
+  CANDIDATAS PARA REVENDA:
+    cCodCateg=1.01.01      | (+) Revenda de Mercadoria (CMV)
+    cCodCateg=1.01.99      | Carteira - Revenda de Mercadoria
+    cCodCateg=1.03.03      | 4.902 - Devoluções de Compra de Mercadoria de Revenda
+    cCodCateg=1.06         | 3.3 -  RECEITA BRUTA DE REVENDA DE MERCADORIA
+    cCodCateg=1.06.99      | 3.301- Revenda de Mercadorias e Peças
+    cCodCateg=2.01.01      | (-) Compras de Mercadorias para Revenda (CMV)
+    cCodCateg=2.01.96      | Compra de Equipamentos para Revenda
+    cCodCateg=2.09.05      | 3.501 - Devolução de Revenda de Mercadorias e Peças
+    cCodCateg=2.12         | 4.2 - CUSTO DAS MERCADORIAS DE REVENDA
+    cCodCateg=2.12.99      | 4.201 - Custo das Mercadorias de Revenda
+
+  CANDIDATAS PARA APLICAÇÃO:
+    cCodCateg=2.01.94      | 4.104 - Custos das Mercadorias Aplicados em Serviços
+
+=== SAOPAULO (329 categorias) ===
+
+  CANDIDATAS PARA REVENDA:
+    cCodCateg=1.01.95      | Revenda de Mercadorias
+    cCodCateg=1.04.99      | 4.902 - Devoluções de Compra de Mercadoria de Revenda
+    cCodCateg=1.07         | 3.3 -  RECEITA BRUTA DE REVENDA DE MERCADORIA
+    cCodCateg=1.07.99      | 3.301- Revenda de Mercadorias e Peças
+    cCodCateg=2.02.99      | 3.501 - Devolução de Revenda de Mercadorias e Peças
+    cCodCateg=2.05.99      | Mercadoria para Revenda
+    cCodCateg=2.25         | 4.2 - CUSTO DAS MERCADORIAS DE REVENDA
+    cCodCateg=2.25.99      | 4.201 - Custo das Mercadorias de Revenda
+
+  CANDIDATAS PARA APLICAÇÃO:
+    cCodCateg=2.05.98      | 4.104 - Custos das Mercadorias Aplicados em Serviços
+
+=== FLORIANOPOLIS (318 categorias) ===
+
+  CANDIDATAS PARA REVENDA:
+    cCodCateg=1.01.95      | Revenda de Mercadorias
+    cCodCateg=1.04.99      | 4.902 - Devoluções de Compra de Mercadoria de Revenda
+    cCodCateg=1.07         | 3.3 -  RECEITA BRUTA DE REVENDA DE MERCADORIA
+    cCodCateg=1.07.99      | 3.301- Revenda de Mercadorias e Peças
+    cCodCateg=2.01         | 4.2 - CUSTO DAS MERCADORIAS DE REVENDA
+    cCodCateg=2.01.99      | 4.201 - Custo das Mercadorias de Revenda
+    cCodCateg=2.02.99      | 3.501 - Devolução de Revenda de Mercadorias e Peças
+    cCodCateg=2.05.99      | Mercadoria para Revenda
+
+  CANDIDATAS PARA APLICAÇÃO:
+    cCodCateg=2.05.98      | 4.104 - Custos das Mercadorias Aplicados em Serviços
+
+=== SALVADOR (316 categorias) ===
+
+  CANDIDATAS PARA REVENDA:
+    cCodCateg=1.01.95      | Revenda de Mercadorias
+    cCodCateg=1.04.99      | 4.902 - Devoluções de Compra de Mercadoria de Revenda
+    cCodCateg=1.07         | 3.3 -  RECEITA BRUTA DE REVENDA DE MERCADORIA
+    cCodCateg=1.07.99      | 3.301- Revenda de Mercadorias e Peças
+    cCodCateg=2.02.99      | 3.501 - Devolução de Revenda de Mercadorias e Peças
+    cCodCateg=2.03         | 4.2 - CUSTO DAS MERCADORIAS DE REVENDA
+    cCodCateg=2.03.99      | 4.201 - Custo das Mercadorias de Revenda
+
+  CANDIDATAS PARA APLICAÇÃO:
+    cCodCateg=2.05.98      | 4.104 - Custos das Mercadorias Aplicados em Serviços

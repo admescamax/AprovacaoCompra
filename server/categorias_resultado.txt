@@ -1,0 +1,113 @@
+
+=== PICARRAS === (100 total | 18 de compra | 2.01.01: SIM)
+  2.01           | 4.1 - CUSTO DOS SERVIÇOS PRESTADOS
+  2.01.01        | 4.104 - Custos das Mercadorias Aplicados em Serviços
+  2.01.02        | 4.106 - Custos por Rateio de Mercadorias e Peças - Matriz/Filiais
+  2.01.03        | 4.103 - Custos dos Materiais para Preventiva
+  2.01.04        | Compra de Serviços
+  2.01.95        | &lt;Disponível&gt;
+  2.01.96        | &lt;Disponível&gt;
+  2.01.97        | 4.105 - Mercadorias e Peças substiuidos em Garantia
+  2.01.98        | 4.102 - Custo dos Serviços Contratados (PJ)  - Pontuais
+  2.01.99        | 4.101 - Custo dos Serviços Contratados (PJ)  - Recorrentes Preventivas
+  2.02           | 5.1 - DESPESAS DE VENDAS E MARKETING
+  2.02.01        | 5.102 - Comissões de Vendas e Captações
+  2.02.02        | 5.104 - Marketing
+  2.02.03        | 5.105 - Hospedagem
+  2.02.04        | 5.103 - Bonificações
+  2.02.95        | &lt;Disponível&gt;
+  2.02.96        | ,
+  2.02.97        | 5.107 - Lanches e Refeições
+
+=== BRASILIA === (100 total | 11 de compra | 2.01.01: SIM)
+  2.01           | 4.1 - CUSTO DOS SERVIÇOS PRESTADOS
+  2.01.01        | (-) Compras de Mercadorias para Revenda (CMV)
+  2.01.02        | (-) Compras de Material de Uso e Consumo
+  2.01.03        | Frete
+  2.01.04        | (-) Compra de Serviços &quot;CSP&quot;
+  2.01.88        | 4.106 - Custos por Rateio de Mercadorias e Peças - Matriz/Filiais
+  2.01.89        | 4.102 - Custo dos Serviços Contratados (PJ)  - Pontuais
+  2.01.90        | 4.105 - Mercadorias e Peças substiuidos em Garantia
+  2.01.91        | 4.101 - Custo dos Serviços Contratados (PJ)  - Recorrentes Preventivas
+  2.01.92        | Reparo Veículos Frota
+  2.01.93        | (-) Adiantamento a Fornecedores (DISPENSÁVEL)
+
+=== SAOPAULO === (100 total | 26 de compra | 2.01.01: NAO)
+  2.01           | 4 - CUSTOS
+  2.02           | 3.5 - DEVOLUÇÕES
+  2.02.97        | Devolução de Material de Uso e Consumo
+  2.02.98        | 3.502 - Devolução de Vendas de Serviços Prestados
+  2.02.99        | 3.501 - Devolução de Revenda de Mercadorias e Peças
+  2.03           | 4.6 - CUSTO COM ENCARGOS TRABALHISTAS
+  2.03.96        | 4.604 - IRRF - Repasse Funcionário
+  2.03.97        | 4.603 - FGTS Rescisão
+  2.03.98        | 4.602 - FGTS
+  2.03.99        | 4.601 - INSS
+  2.04           | 4.7 - CUSTO COM BENEFICIOS
+  2.04.93        | 4.707 - Aplicativo de Transporte
+  2.04.94        | 4.706 - Complemento Salarial
+  2.04.95        | 4.705 - Ajuda de Custos
+  2.04.96        | 4.704 - Seguro de Vida
+  2.04.97        | 4.703 - Assistência Médica
+  2.04.98        | 4.702 -  Vale Refeição
+  2.04.99        | 4.701 - Vale Transporte
+  2.05           | 4.1 - CUSTO DOS SERVIÇOS PRESTADOS
+  2.05.93        | 4.106 - Custos por Rateio de Mercadorias e Peças - Matriz/Filiais
+  2.05.94        | 4.105 - Mercadorias e Peças substiuidos em Garantia
+  2.05.95        | 4.102 - Custo dos Serviços Contratados (PJ)  - Pontuais
+  2.05.96        | 4.101 - Custo dos Serviços Contratados (PJ)  - Recorrentes Preventivas
+  2.05.97        | 4.103 - Custos dos Materiais para Preventiva
+  2.05.98        | 4.104 - Custos das Mercadorias Aplicados em Serviços
+  2.05.99        | Mercadoria para Revenda
+
+=== FLORIANOPOLIS === (100 total | 24 de compra | 2.01.01: NAO)
+  2.01           | 4.2 - CUSTO DAS MERCADORIAS DE REVENDA
+  2.01.99        | 4.201 - Custo das Mercadorias de Revenda
+  2.02           | 3.5 - DEVOLUÇÕES
+  2.02.97        | Devolução de Material de Uso e Consumo
+  2.02.98        | 3.502 - Devolução de Vendas de Serviços Prestados
+  2.02.99        | 3.501 - Devolução de Revenda de Mercadorias e Peças
+  2.03           | 4.8 - CUSTO DE OBRIGAÇÕES TRABALHISTAS
+  2.03.89        | 4.811 - Contribuição Sindical
+  2.03.90        | 4.810 - PCMSO/Mensalidade
+  2.03.91        | 4.809 - Cursos de Normas (NR10, NR35, etc.)
+  2.03.92        | 4.808 - Equipamentos de Proteção Individual (EPI)
+  2.03.93        | 4.807 - Hospedagem
+  2.03.94        | 4.806 - Viagens
+  2.03.95        | 4.805 - Provisão de Apoio Estudantil
+  2.03.96        | 4.804 - Estacionamento
+  2.03.97        | 4.803- Exame Ocupacional (ASO)
+  2.03.98        | 4.802 - Lavagem Uniformes
+  2.03.99        | 4.801 - Uniformes e EPIs
+  2.04           | 4.7 - CUSTO COM BENEFICIOS
+  2.04.93        | 4.707 - Aplicativo de Transporte
+  2.04.94        | 4.706 - Complemento Salarial
+  2.04.95        | 4.705 - Ajuda de Custos
+  2.04.96        | 4.704 - Seguro de Vida
+  2.04.97        | 4.703 - Assistência Médica
+
+=== SALVADOR === (100 total | 24 de compra | 2.01.01: NAO)
+  2.01           | 4.6 - CUSTO COM ENCARGOS TRABALHISTAS
+  2.01.96        | 4.604 - IRRF - Repasse Funcionário
+  2.01.97        | 4.603 - FGTS Rescisão
+  2.01.98        | 4.602 - FGTS
+  2.01.99        | 4.601 - INSS
+  2.02           | 3.5 - DEVOLUÇÕES
+  2.02.97        | Devolução de Material de Uso e Consumo
+  2.02.98        | 3.502 - Devolução de Vendas de Serviços Prestados
+  2.02.99        | 3.501 - Devolução de Revenda de Mercadorias e Peças
+  2.03           | 4.2 - CUSTO DAS MERCADORIAS DE REVENDA
+  2.03.99        | 4.201 - Custo das Mercadorias de Revenda
+  2.04           | 4 - CUSTOS
+  2.05           | 4.1 - CUSTO DOS SERVIÇOS PRESTADOS
+  2.05.94        | 4.106 - Custos por Rateio de Mercadorias e Peças - Matriz/Filiais
+  2.05.95        | 4.105 - Mercadorias e Peças substiuidos em Garantia
+  2.05.96        | 4.101 - Custo dos Serviços Contratados (PJ)  - Recorrentes Preventivas
+  2.05.97        | 4.103 - Custos dos Materiais para Preventiva
+  2.05.98        | 4.104 - Custos das Mercadorias Aplicados em Serviços
+  2.05.99        | 4.102 - Custo dos Serviços Contratados (PJ)  - Pontuais
+  2.06           | 4.3 - OUTROS CUSTOS
+  2.06.86        | 4.314 - Taxas e Associações
+  2.06.87        | 4.313 - Taxas de Fiscalização de Estabelecimento
+  2.06.88        | 4.312 - ART
+  2.06.89        | 4.311 - IPVA
