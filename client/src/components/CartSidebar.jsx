@@ -26,8 +26,8 @@ const PRIORIDADES = [
 function SectionHeader({ icon: Icon, label }) {
     return (
         <div className="flex items-center gap-2 mb-3">
-            <Icon size={13} className="text-slate-500" />
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{label}</span>
+            <Icon size={13} className="text-[var(--vp-primary)]" />
+            <span className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest">{label}</span>
         </div>
     );
 }
@@ -42,14 +42,14 @@ function RadioGroup({ options, value, onChange, columns = 1 }) {
                         key={opt.value}
                         type="button"
                         onClick={() => onChange(opt.value)}
-                        className={`rounded-lg border px-3 py-2 text-left transition-all text-xs font-semibold
+                        className={`rounded-sm border px-3 py-2 text-left transition-colors text-xs font-black
                             ${active
-                                ? 'bg-sky-500/20 border-sky-500 text-sky-300'
-                                : 'bg-slate-800/60 border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-300'
+                                ? 'bg-[var(--vp-primary)]/10 border-[var(--vp-primary)] text-[var(--vp-primary)]'
+                                : 'bg-white border-[var(--vp-border)] text-[var(--vp-text-label)] hover:border-gray-400 hover:text-black'
                             }`}
                     >
                         <span className="block">{opt.label}</span>
-                        {opt.sub && <span className={`text-[10px] font-normal ${active ? 'text-sky-400/70' : 'text-slate-600'}`}>{opt.sub}</span>}
+                        {opt.sub && <span className={`text-[10px] font-bold ${active ? 'text-[var(--vp-primary)]/70' : 'text-gray-400'}`}>{opt.sub}</span>}
                     </button>
                 );
             })}
@@ -157,35 +157,35 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
     return (
         <>
             {/* Backdrop */}
-            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]" onClick={onClose} />
+            <div className="fixed inset-0 bg-black/40 z-[100]" onClick={onClose} />
 
             {/* Sidebar */}
-            <div className="fixed right-0 top-0 h-full w-full max-w-md bg-slate-900 border-l border-slate-700 z-[101] shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+            <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white border-l border-[var(--vp-border)] z-[101] shadow-lg flex flex-col animate-in slide-in-from-right duration-300">
 
                 {/* Header */}
-                <div className="p-5 border-b border-slate-700 flex justify-between items-center bg-slate-800/50 shrink-0">
+                <div className="p-5 border-b border-[var(--vp-border)] flex justify-between items-center bg-[var(--vp-bg-soft)] shrink-0">
                     <div className="flex items-center gap-3">
-                        <ShoppingCart className="text-sky-400" />
-                        <h2 className="text-xl font-bold text-white">Meu Carrinho</h2>
-                        <span className="bg-sky-500 text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        <ShoppingCart className="text-[var(--vp-primary)]" size={20} />
+                        <h2 className="text-sm font-black text-black uppercase tracking-tight">Meu Carrinho</h2>
+                        <span className="bg-[var(--vp-primary)] text-white text-[10px] font-black px-2 py-0.5 rounded-sm">
                             {totalItems}
                         </span>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-700 rounded-lg transition-colors text-slate-400">
-                        <X size={24} />
+                    <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-sm transition-colors text-gray-400">
+                        <X size={22} />
                     </button>
                 </div>
 
                 {/* Seleção de Unidade */}
-                <div className="px-5 py-3 bg-slate-800/30 border-b border-slate-700 shrink-0">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">
+                <div className="px-5 py-3 bg-[var(--vp-bg-soft)] border-b border-[var(--vp-border)] shrink-0">
+                    <label className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest mb-1.5 block">
                         Unidade Escamax Requisitante
                     </label>
                     <select
                         value={selectedBranch}
                         onChange={(e) => setSelectedBranch(e.target.value)}
-                        className={`w-full bg-slate-900 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500/50 outline-none transition-all ${
-                            selectedBranch ? 'border-slate-700 text-white' : 'border-amber-500/60 text-slate-400'
+                        className={`w-full bg-white border rounded-sm px-3 py-2 text-xs font-black focus:ring-1 focus:ring-[var(--vp-primary)] outline-none transition-all ${
+                            selectedBranch ? 'border-[var(--vp-border)] text-black' : 'border-amber-400 text-gray-500'
                         }`}
                     >
                         <option value="" disabled>Escolha a unidade...</option>
@@ -203,41 +203,41 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                     {/* Itens */}
                     <div className="p-5 space-y-3">
                         {cart.length === 0 ? (
-                            <div className="py-16 flex flex-col items-center justify-center text-slate-500 gap-4">
+                            <div className="py-16 flex flex-col items-center justify-center text-gray-400 gap-4">
                                 <ShoppingCart size={48} className="opacity-20" />
-                                <p className="text-sm">Seu carrinho está vazio.</p>
+                                <p className="text-[10px] font-black uppercase tracking-widest">Seu carrinho está vazio.</p>
                             </div>
                         ) : (
                             cart.map((item) => (
-                                <div key={item.codigo} className="glass-panel p-4 rounded-xl border border-slate-700/50 flex gap-3 group">
-                                    <div className="w-14 h-14 rounded-lg bg-slate-800 border border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                <div key={item.codigo} className="vp-card p-4 flex gap-3 group">
+                                    <div className="w-14 h-14 rounded-sm bg-[var(--vp-bg-soft)] border border-[var(--vp-border)] overflow-hidden flex-shrink-0 flex items-center justify-center">
                                         {item.url_imagem ? (
                                             <img src={item.url_imagem} alt={item.descricao} className="w-full h-full object-contain" />
                                         ) : (
-                                            <ImageIcon size={18} className="text-slate-700" />
+                                            <ImageIcon size={18} className="text-gray-300" />
                                         )}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex justify-between items-start gap-2">
-                                            <h4 className="text-xs font-bold text-white leading-tight" title={item.descricao}>{item.descricao}</h4>
-                                            <button onClick={() => removeFromItem(item.codigo)} className="text-slate-500 hover:text-red-400 transition-colors shrink-0">
+                                            <h4 className="text-xs font-black text-black leading-tight" title={item.descricao}>{item.descricao}</h4>
+                                            <button onClick={() => removeFromItem(item.codigo)} className="text-gray-400 hover:text-[var(--vp-danger)] transition-colors shrink-0">
                                                 <Trash2 size={14} />
                                             </button>
                                         </div>
-                                        <p className="text-[10px] font-mono text-slate-500 mb-1.5">{item.codigo}</p>
+                                        <p className="text-[10px] font-mono text-gray-400 mb-1.5">{item.codigo}</p>
                                         <div className="flex justify-between items-center">
-                                            <span className="text-green-400 font-bold text-sm">
+                                            <span className="text-green-700 font-black text-sm">
                                                 {item.mmBased ? `${formatarMoeda(item.preco)}/mm` : formatarMoeda(item.preco)}
                                             </span>
                                             {item.mmBased ? (
-                                                <span className="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-1 rounded-lg">
+                                                <span className="text-xs font-black text-[var(--vp-warning)] bg-amber-50 border border-amber-200 px-2 py-1 rounded-sm">
                                                     {item.quantity} mm
                                                 </span>
                                             ) : (
-                                                <div className="flex items-center bg-slate-800 rounded-lg border border-slate-700">
-                                                    <button onClick={() => updateQuantity(item.codigo, -1)} className="p-1 hover:text-sky-400 transition-colors"><Minus size={12} /></button>
-                                                    <span className="w-7 text-center text-xs font-bold text-white">{item.quantity}</span>
-                                                    <button onClick={() => updateQuantity(item.codigo, 1)} className="p-1 hover:text-sky-400 transition-colors"><Plus size={12} /></button>
+                                                <div className="flex items-center bg-white rounded-sm border border-[var(--vp-border)]">
+                                                    <button onClick={() => updateQuantity(item.codigo, -1)} className="p-1 text-gray-500 hover:text-[var(--vp-primary)] transition-colors"><Minus size={12} /></button>
+                                                    <span className="w-7 text-center text-xs font-black text-black">{item.quantity}</span>
+                                                    <button onClick={() => updateQuantity(item.codigo, 1)} className="p-1 text-gray-500 hover:text-[var(--vp-primary)] transition-colors"><Plus size={12} /></button>
                                                 </div>
                                             )}
                                         </div>
@@ -249,7 +249,7 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
 
                     {/* ── Detalhes do Pedido ─────────────────────────────────────── */}
                     {cart.length > 0 && (
-                        <div className="px-5 pb-5 space-y-5 border-t border-slate-700/50 pt-4">
+                        <div className="px-5 pb-5 space-y-5 border-t border-[var(--vp-border)] pt-4">
 
                             {/* Finalidade */}
                             <div>
@@ -287,14 +287,14 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                                                 key={opt.value}
                                                 type="button"
                                                 onClick={() => setTipoFrete(opt.value)}
-                                                className={`rounded-lg border px-3 py-2 text-left text-xs font-semibold transition-all flex items-center gap-2
+                                                className={`rounded-sm border px-3 py-2 text-left text-xs font-black transition-colors flex items-center gap-2
                                                     ${active
-                                                        ? 'bg-sky-500/20 border-sky-500 text-sky-300'
-                                                        : 'bg-slate-800/60 border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-300'
+                                                        ? 'bg-[var(--vp-primary)]/10 border-[var(--vp-primary)] text-[var(--vp-primary)]'
+                                                        : 'bg-white border-[var(--vp-border)] text-[var(--vp-text-label)] hover:border-gray-400 hover:text-black'
                                                     }`}
                                             >
-                                                <span className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${active ? 'border-sky-500' : 'border-slate-600'}`}>
-                                                    {active && <span className="w-2 h-2 rounded-full bg-sky-400" />}
+                                                <span className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${active ? 'border-[var(--vp-primary)]' : 'border-gray-300'}`}>
+                                                    {active && <span className="w-2 h-2 rounded-full bg-[var(--vp-primary)]" />}
                                                 </span>
                                                 {opt.label}
                                             </button>
@@ -305,13 +305,13 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                                 {/* Campo condicional: Endereço de Entrega (CIF) */}
                                 {tipoFrete === '0' && (
                                     <div className="mt-3 animate-in fade-in slide-in-from-top-2 duration-200">
-                                        <label className="text-[10px] text-slate-500 block mb-1">Endereço de Entrega</label>
+                                        <label className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest block mb-1">Endereço de Entrega</label>
                                         <textarea
                                             value={enderecoEntrega}
                                             onChange={e => setEnderecoEntrega(e.target.value)}
                                             placeholder="Rua, número, bairro, cidade, estado, CEP..."
                                             rows={2}
-                                            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-sky-500 transition-colors resize-none placeholder:text-slate-600"
+                                            className="w-full bg-white border border-[var(--vp-border)] rounded-sm px-3 py-2 text-black text-xs font-bold focus:outline-none focus:ring-1 focus:ring-[var(--vp-primary)] focus:border-[var(--vp-primary)] transition-colors resize-none placeholder:text-gray-400"
                                         />
                                     </div>
                                 )}
@@ -320,23 +320,23 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                                 {tipoFrete === '2' && (
                                     <div className="mt-3 space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
                                         <div>
-                                            <label className="text-[10px] text-slate-500 block mb-1">Razão Social da Transportadora</label>
+                                            <label className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest block mb-1">Razão Social da Transportadora</label>
                                             <input
                                                 type="text"
                                                 value={transportadoraRazao}
                                                 onChange={e => setTransportadoraRazao(e.target.value)}
                                                 placeholder="Ex: Transportes ABC Ltda"
-                                                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-sky-500 transition-colors placeholder:text-slate-600"
+                                                className="w-full bg-white border border-[var(--vp-border)] rounded-sm px-3 py-2 text-black text-xs font-bold focus:outline-none focus:ring-1 focus:ring-[var(--vp-primary)] focus:border-[var(--vp-primary)] transition-colors placeholder:text-gray-400"
                                             />
                                         </div>
                                         <div>
-                                            <label className="text-[10px] text-slate-500 block mb-1">CNPJ da Transportadora</label>
+                                            <label className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest block mb-1">CNPJ da Transportadora</label>
                                             <input
                                                 type="text"
                                                 value={transportadoraCnpj}
                                                 onChange={e => setTransportadoraCnpj(e.target.value)}
                                                 placeholder="00.000.000/0000-00"
-                                                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-sky-500 transition-colors placeholder:text-slate-600"
+                                                className="w-full bg-white border border-[var(--vp-border)] rounded-sm px-3 py-2 text-black text-xs font-bold focus:outline-none focus:ring-1 focus:ring-[var(--vp-primary)] focus:border-[var(--vp-primary)] transition-colors placeholder:text-gray-400"
                                             />
                                         </div>
                                     </div>
@@ -349,7 +349,7 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                                 <div className="space-y-2">
                                     <div className="grid grid-cols-2 gap-2">
                                         <div>
-                                            <label className="text-[10px] text-slate-500 block mb-1">Valor da Entrada (R$)</label>
+                                            <label className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest block mb-1">Valor da Entrada (R$)</label>
                                             <input
                                                 type="number"
                                                 min="0"
@@ -357,26 +357,26 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                                                 placeholder="0,00"
                                                 value={valorEntrada}
                                                 onChange={e => setValorEntrada(e.target.value)}
-                                                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-sky-500 transition-colors"
+                                                className="w-full bg-white border border-[var(--vp-border)] rounded-sm px-3 py-2 text-black text-xs font-bold focus:outline-none focus:ring-1 focus:ring-[var(--vp-primary)] focus:border-[var(--vp-primary)] transition-colors"
                                             />
                                         </div>
                                         <div>
-                                            <label className="text-[10px] text-slate-500 block mb-1">Data da Entrada</label>
+                                            <label className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest block mb-1">Data da Entrada</label>
                                             <input
                                                 type="date"
                                                 min={today}
                                                 value={dataEntrada}
                                                 onChange={e => setDataEntrada(e.target.value)}
-                                                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-sky-500 transition-colors"
+                                                className="w-full bg-white border border-[var(--vp-border)] rounded-sm px-3 py-2 text-black text-xs font-bold focus:outline-none focus:ring-1 focus:ring-[var(--vp-primary)] focus:border-[var(--vp-primary)] transition-colors"
                                             />
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="text-[10px] text-slate-500 block mb-1">Restante em quantas parcelas</label>
+                                        <label className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest block mb-1">Restante em quantas parcelas</label>
                                         <select
                                             value={parcelas}
                                             onChange={e => setParcelas(e.target.value)}
-                                            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-sky-500 transition-colors"
+                                            className="w-full bg-white border border-[var(--vp-border)] rounded-sm px-3 py-2 text-black text-xs font-bold focus:outline-none focus:ring-1 focus:ring-[var(--vp-primary)] focus:border-[var(--vp-primary)] transition-colors"
                                         >
                                             <option value="0">À vista (sem parcelamento)</option>
                                             {[...Array(11)].map((_, i) => (
@@ -392,23 +392,23 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
 
                 {/* Footer / Checkout */}
                 {cart.length > 0 && (
-                    <div className="p-5 bg-slate-800/80 border-t border-slate-700 space-y-3 shrink-0">
+                    <div className="p-5 bg-[var(--vp-bg-soft)] border-t border-[var(--vp-border)] space-y-3 shrink-0">
                         <div className="flex justify-between items-center">
-                            <span className="text-slate-400 text-sm">Total do Pedido</span>
-                            <span className="text-2xl font-bold text-white">{formatarMoeda(totalPrice)}</span>
+                            <span className="text-[var(--vp-text-label)] text-[10px] font-black uppercase tracking-widest">Total do Pedido</span>
+                            <span className="text-xl font-black text-black">{formatarMoeda(totalPrice)}</span>
                         </div>
 
                         {checkoutStatus === 'success' ? (
-                            <div className="bg-green-500/20 border border-green-500/50 text-green-400 p-4 rounded-xl flex items-center gap-3">
+                            <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded-sm flex items-center gap-3">
                                 <CheckCircle size={20} />
-                                <span className="text-sm font-bold">Requisição e Pedido criados no Omie!</span>
+                                <span className="text-xs font-black">Requisição e Pedido criados no Omie!</span>
                             </div>
                         ) : checkoutStatus === 'error' ? (
-                            <div className="bg-red-500/20 border border-red-500/50 text-red-400 p-4 rounded-xl flex items-center gap-3">
+                            <div className="bg-red-50 border border-red-200 text-[var(--vp-danger)] p-4 rounded-sm flex items-center gap-3">
                                 <X size={20} className="flex-shrink-0" />
                                 <div className="flex flex-col">
-                                    <span className="text-sm font-bold">Erro no Pedido</span>
-                                    <span className="text-[11px] leading-tight opacity-90">{errorMessage}</span>
+                                    <span className="text-xs font-black">Erro no Pedido</span>
+                                    <span className="text-[11px] font-bold leading-tight opacity-90">{errorMessage}</span>
                                 </div>
                             </div>
                         ) : (
@@ -420,7 +420,7 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                                     (tipoFrete === '0' && !enderecoEntrega.trim()) ||
                                     (tipoFrete === '2' && (!transportadoraRazao.trim() || !transportadoraCnpj.trim()))
                                 }
-                                className="w-full bg-sky-500 hover:bg-sky-400 disabled:bg-slate-700 disabled:text-slate-500 text-slate-900 font-bold py-4 rounded-xl shadow-lg shadow-sky-500/20 transition-all flex items-center justify-center gap-3 active:scale-95"
+                                className="w-full bg-[var(--vp-primary)] hover:bg-[var(--vp-primary-dark)] disabled:bg-gray-200 disabled:text-gray-400 text-white text-xs font-black uppercase tracking-widest py-3.5 rounded-sm transition-colors flex items-center justify-center gap-3 active:scale-95"
                             >
                                 {isCheckingOut ? (
                                     <>
@@ -432,7 +432,7 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                                 )}
                             </button>
                         )}
-                        <p className="text-[10px] text-center text-slate-500">
+                        <p className="text-[10px] font-bold text-center text-gray-400">
                             Ao finalizar, uma Requisição de Compra será criada na filial <strong>{selectedBranch}</strong> e um Pedido de Venda na <strong>VerticalParts</strong>.
                         </p>
                     </div>

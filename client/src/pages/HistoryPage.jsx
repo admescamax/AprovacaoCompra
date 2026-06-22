@@ -6,28 +6,28 @@ const API_BASE = import.meta.env.VITE_API_URL || '';
 function StatusBadge({ status, numero, label }) {
     if (status === 'ok') return (
         <div className="flex items-center gap-1.5">
-            <CheckCircle size={16} className="text-emerald-400 shrink-0" />
+            <CheckCircle size={16} className="text-green-600 shrink-0" />
             <div>
-                <p className="text-xs text-slate-400 leading-none mb-0.5">{label}</p>
-                <p className="text-sm font-semibold text-emerald-400">Nº {numero ?? '—'}</p>
+                <p className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest leading-none mb-0.5">{label}</p>
+                <p className="text-xs font-black text-green-700">Nº {numero ?? '—'}</p>
             </div>
         </div>
     );
     if (status === 'erro') return (
         <div className="flex items-center gap-1.5">
-            <XCircle size={16} className="text-red-400 shrink-0" />
+            <XCircle size={16} className="text-[var(--vp-danger)] shrink-0" />
             <div>
-                <p className="text-xs text-slate-400 leading-none mb-0.5">{label}</p>
-                <p className="text-sm font-semibold text-red-400">Erro</p>
+                <p className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest leading-none mb-0.5">{label}</p>
+                <p className="text-xs font-black text-[var(--vp-danger)]">Erro</p>
             </div>
         </div>
     );
     return (
         <div className="flex items-center gap-1.5">
-            <Clock size={16} className="text-slate-500 shrink-0" />
+            <Clock size={16} className="text-gray-400 shrink-0" />
             <div>
-                <p className="text-xs text-slate-400 leading-none mb-0.5">{label}</p>
-                <p className="text-sm font-semibold text-slate-500">Pendente</p>
+                <p className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest leading-none mb-0.5">{label}</p>
+                <p className="text-xs font-black text-gray-400">Pendente</p>
             </div>
         </div>
     );
@@ -43,7 +43,7 @@ function OrderRow({ order }) {
     const overallErr = order.pedido_compra?.status === 'erro' || order.pedido_venda?.status === 'erro';
 
     return (
-        <div className={`rounded-xl border transition-all ${overallOk ? 'border-emerald-500/20 bg-emerald-500/5' : overallErr ? 'border-red-500/20 bg-red-500/5' : 'border-slate-700/50 bg-slate-800/40'}`}>
+        <div className={`rounded-sm border transition-colors ${overallOk ? 'border-green-200 bg-green-50/50' : overallErr ? 'border-red-200 bg-red-50/50' : 'border-[var(--vp-border)] bg-white'}`}>
             {/* Header row */}
             <button
                 onClick={() => setExpanded(e => !e)}
@@ -51,22 +51,22 @@ function OrderRow({ order }) {
             >
                 {/* Date */}
                 <div className="shrink-0 w-28">
-                    <p className="text-sm font-semibold text-white">{dateStr}</p>
-                    <p className="text-xs text-slate-400">{timeStr}</p>
+                    <p className="text-xs font-black text-black">{dateStr}</p>
+                    <p className="text-[10px] text-[var(--vp-text-label)] font-bold">{timeStr}</p>
                 </div>
 
                 {/* Unidade */}
                 <div className="shrink-0 w-28">
-                    <p className="text-xs text-slate-400 mb-0.5">Unidade</p>
-                    <span className="inline-block text-xs font-bold px-2 py-0.5 rounded-md bg-sky-500/15 text-sky-400 border border-sky-500/25">
+                    <p className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest mb-0.5">Unidade</p>
+                    <span className="inline-block text-[10px] font-black px-2 py-0.5 rounded-sm bg-[var(--vp-primary)]/10 text-[var(--vp-primary)] border border-[var(--vp-primary)]/25">
                         {order.unidade}
                     </span>
                 </div>
 
                 {/* Itens */}
                 <div className="shrink-0 w-16 text-center">
-                    <p className="text-xs text-slate-400 mb-0.5">Itens</p>
-                    <p className="text-sm font-semibold text-white">{order.itens?.length ?? 0}</p>
+                    <p className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest mb-0.5">Itens</p>
+                    <p className="text-xs font-black text-black">{order.itens?.length ?? 0}</p>
                 </div>
 
                 {/* Status Compra (Escamax) */}
@@ -88,37 +88,37 @@ function OrderRow({ order }) {
                 </div>
 
                 {/* Expand chevron */}
-                <div className="shrink-0 text-slate-500">
+                <div className="shrink-0 text-gray-400">
                     {expanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                 </div>
             </button>
 
             {/* Expanded detail */}
             {expanded && (
-                <div className="px-5 pb-4 border-t border-slate-700/40 pt-3">
+                <div className="px-5 pb-4 border-t border-[var(--vp-border)] pt-3">
                     {/* Erros */}
                     {order.pedido_compra?.status === 'erro' && (
-                        <div className="mb-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                            <p className="text-xs font-semibold text-red-400 mb-1">Detalhe do erro — Req. Compra Escamax</p>
-                            <p className="text-xs text-slate-300 break-words">{order.pedido_compra.detalhe}</p>
+                        <div className="mb-3 p-3 rounded-sm bg-red-50 border border-red-200">
+                            <p className="text-[10px] font-black text-[var(--vp-danger)] uppercase tracking-widest mb-1">Detalhe do erro — Req. Compra Escamax</p>
+                            <p className="text-xs text-gray-700 font-bold break-words">{order.pedido_compra.detalhe}</p>
                         </div>
                     )}
                     {order.pedido_venda?.status === 'erro' && (
-                        <div className="mb-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                            <p className="text-xs font-semibold text-red-400 mb-1">Detalhe do erro — Pedido Venda VP</p>
-                            <p className="text-xs text-slate-300 break-words">{order.pedido_venda.detalhe}</p>
+                        <div className="mb-3 p-3 rounded-sm bg-red-50 border border-red-200">
+                            <p className="text-[10px] font-black text-[var(--vp-danger)] uppercase tracking-widest mb-1">Detalhe do erro — Pedido Venda VP</p>
+                            <p className="text-xs text-gray-700 font-bold break-words">{order.pedido_venda.detalhe}</p>
                         </div>
                     )}
 
                     {/* Itens */}
-                    <p className="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wide">Itens do pedido</p>
+                    <p className="text-[10px] font-black text-[var(--vp-text-label)] mb-2 uppercase tracking-widest">Itens do pedido</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                         {(order.itens || []).map((item, i) => (
-                            <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800/60 border border-slate-700/40">
-                                <Package size={14} className="text-slate-500 shrink-0" />
+                            <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-sm bg-[var(--vp-bg-soft)] border border-[var(--vp-border)]">
+                                <Package size={14} className="text-gray-400 shrink-0" />
                                 <div className="min-w-0">
-                                    <p className="text-xs font-mono text-sky-400 truncate">{item.codigo}</p>
-                                    <p className="text-xs text-slate-400">{item.quantidade}× · R$ {Number(item.preco_unitario || 0).toFixed(2)}</p>
+                                    <p className="text-xs font-mono text-[var(--vp-primary)] truncate">{item.codigo}</p>
+                                    <p className="text-[10px] text-[var(--vp-text-label)] font-bold">{item.quantidade}× · R$ {Number(item.preco_unitario || 0).toFixed(2)}</p>
                                 </div>
                             </div>
                         ))}
@@ -185,15 +185,15 @@ export default function HistoryPage() {
     const handleFiltrar = () => fetchOrders(de, ate);
 
     return (
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Header */}
             <div className="mb-6 flex items-start justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-white mb-1">Histórico de Pedidos</h1>
-                    <p className="text-sm text-slate-400">
+                    <h1 className="text-sm font-black text-black uppercase tracking-tight mb-1">Histórico de Pedidos</h1>
+                    <p className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest">
                         Acompanhe o status de cada pedido nas contas Omie.
                         {lastUpdated && (
-                            <span className="ml-2 text-slate-600">
+                            <span className="ml-2 text-gray-400">
                                 Atualizado às {lastUpdated.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                             </span>
                         )}
@@ -203,47 +203,47 @@ export default function HistoryPage() {
                 <button
                     onClick={handleFiltrar}
                     disabled={loading}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-all disabled:opacity-50 shrink-0"
+                    className="flex items-center gap-2 px-3 py-2 rounded-sm bg-white hover:bg-gray-50 text-gray-700 text-[10px] font-black uppercase tracking-widest border border-[var(--vp-border)] transition-colors disabled:opacity-50 shrink-0"
                     title="Buscar pedidos novamente"
                 >
-                    <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
+                    <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
                     Atualizar
                 </button>
             </div>
 
             {/* Filtros */}
-            <div className="flex flex-wrap items-end gap-3 mb-6 p-4 rounded-xl bg-slate-800/50 border border-slate-700/50">
-                <Filter size={16} className="text-slate-500 self-center" />
+            <div className="flex flex-wrap items-end gap-3 mb-6 p-4 rounded-sm vp-panel">
+                <Filter size={16} className="text-gray-400 self-center" />
 
                 {/* Filtro por data */}
                 <div className="flex items-center gap-2">
-                    <Calendar size={15} className="text-slate-500" />
-                    <label className="text-xs text-slate-400">De</label>
+                    <Calendar size={15} className="text-gray-400" />
+                    <label className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest">De</label>
                     <input
                         type="date"
                         value={de}
                         onChange={e => setDe(e.target.value)}
-                        className="bg-slate-900 border border-slate-600 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-sky-500"
+                        className="bg-white border border-[var(--vp-border)] rounded-sm px-3 py-1.5 text-xs font-bold text-black focus:outline-none focus:ring-1 focus:ring-[var(--vp-primary)] focus:border-[var(--vp-primary)]"
                     />
                 </div>
                 <div className="flex items-center gap-2">
-                    <label className="text-xs text-slate-400">Até</label>
+                    <label className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest">Até</label>
                     <input
                         type="date"
                         value={ate}
                         onChange={e => setAte(e.target.value)}
-                        className="bg-slate-900 border border-slate-600 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-sky-500"
+                        className="bg-white border border-[var(--vp-border)] rounded-sm px-3 py-1.5 text-xs font-bold text-black focus:outline-none focus:ring-1 focus:ring-[var(--vp-primary)] focus:border-[var(--vp-primary)]"
                     />
                 </div>
 
                 {/* Filtro por unidade */}
                 <div className="flex items-center gap-2">
-                    <Building2 size={15} className="text-slate-500" />
-                    <label className="text-xs text-slate-400">Unidade</label>
+                    <Building2 size={15} className="text-gray-400" />
+                    <label className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest">Unidade</label>
                     <select
                         value={unidadeFiltro}
                         onChange={e => setUnidadeFiltro(e.target.value)}
-                        className="bg-slate-900 border border-slate-600 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-sky-500 cursor-pointer"
+                        className="bg-white border border-[var(--vp-border)] rounded-sm px-3 py-1.5 text-xs font-bold text-black focus:outline-none focus:ring-1 focus:ring-[var(--vp-primary)] focus:border-[var(--vp-primary)] cursor-pointer"
                     >
                         {unidades.map(u => (
                             <option key={u} value={u}>{u}</option>
@@ -253,7 +253,7 @@ export default function HistoryPage() {
 
                 <button
                     onClick={handleFiltrar}
-                    className="ml-auto px-4 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-sm font-semibold text-white transition-colors"
+                    className="ml-auto px-4 py-1.5 rounded-sm bg-[var(--vp-primary)] hover:bg-[var(--vp-primary-dark)] text-[10px] font-black uppercase tracking-widest text-white transition-colors"
                 >
                     Filtrar
                 </button>
@@ -261,7 +261,7 @@ export default function HistoryPage() {
 
             {/* Contador de resultados */}
             {!loading && !error && allOrders.length > 0 && (
-                <p className="text-xs text-slate-500 mb-3">
+                <p className="text-[10px] text-gray-400 font-bold mb-3">
                     {orders.length === allOrders.length
                         ? `${allOrders.length} pedido(s) no período`
                         : `${orders.length} de ${allOrders.length} pedido(s) · filtrado por ${unidadeFiltro}`}
@@ -272,22 +272,22 @@ export default function HistoryPage() {
             {loading && (
                 <div className="space-y-3">
                     {[1, 2, 3].map(i => (
-                        <div key={i} className="h-20 rounded-xl bg-slate-800/40 border border-slate-700/50 animate-pulse" />
+                        <div key={i} className="h-20 rounded-sm bg-white border border-[var(--vp-border)] animate-pulse" />
                     ))}
                 </div>
             )}
             {error && (
-                <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center justify-between gap-4">
+                <div className="p-4 rounded-sm bg-red-50 border border-red-200 text-[var(--vp-danger)] text-xs font-black flex items-center justify-between gap-4">
                     <span>Erro ao carregar pedidos: {error}</span>
-                    <button onClick={handleFiltrar} className="px-3 py-1 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-xs font-semibold transition-colors shrink-0">
+                    <button onClick={handleFiltrar} className="px-3 py-1 rounded-sm bg-red-100 hover:bg-red-200 text-[10px] font-black uppercase tracking-widest transition-colors shrink-0">
                         Tentar novamente
                     </button>
                 </div>
             )}
             {!loading && !error && orders.length === 0 && (
-                <div className="text-center py-16 text-slate-500">
+                <div className="text-center py-16 text-gray-400">
                     <Package size={40} className="mx-auto mb-3 opacity-30" />
-                    <p className="text-sm">
+                    <p className="text-[10px] font-black uppercase tracking-widest">
                         {allOrders.length === 0
                             ? 'Nenhum pedido encontrado no período selecionado.'
                             : `Nenhum pedido para a unidade "${unidadeFiltro}" neste período.`}

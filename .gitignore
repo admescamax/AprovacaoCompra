@@ -4,6 +4,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Credentials / secrets (never commit)
+credenciais.md
+credenciais
+credentials.md
+*.secrets.md
+
 # Environment variables (contains API keys and secrets)
 .env
 .env.local

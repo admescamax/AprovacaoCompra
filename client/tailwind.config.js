@@ -7,12 +7,13 @@ export default {
     theme: {
         extend: {
             colors: {
-                // Premium colors
-                primary: '#0f172a', // Slate 900
-                secondary: '#334155', // Slate 700
-                accent: '#38bdf8', // Sky 400
-                background: '#020617', // Slate 950
-                surface: '#1e293b', // Slate 800
+                // Identidade VerticalParts — corporativo claro
+                primary: '#1769ba',     // azul VP
+                'primary-dark': '#11528f',
+                secondary: '#374151',   // cinza escuro
+                accent: '#1769ba',      // acento = primário VP
+                background: '#f3f4f6',  // fundo claro da aplicação
+                surface: '#ffffff',     // painéis brancos
             },
             fontFamily: {
                 sans: ['Inter', 'sans-serif'],

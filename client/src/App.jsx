@@ -22,13 +22,10 @@ function ProtectedRoute({ children }) {
 function Layout({ children }) {
     const { logout } = useAuth();
     return (
-        <div className="flex h-screen bg-background text-white overflow-hidden">
+        <div className="flex h-screen bg-[var(--vp-bg)] text-[var(--vp-text)] overflow-hidden">
             <Sidebar logout={logout} />
             <main className="flex-1 overflow-auto relative">
-                <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-                    <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-blue-900/10 blur-[150px]"></div>
-                </div>
-                <div className="relative z-10 p-8">
+                <div className="relative z-10 p-6">
                     {children}
                 </div>
             </main>

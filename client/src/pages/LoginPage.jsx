@@ -33,41 +33,37 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background relative overflow-hidden">
-            {/* Background Effects */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-accent/20 blur-[120px]"></div>
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-primary/30 blur-[120px]"></div>
-            </div>
-
-            <div className="glass-panel p-8 rounded-2xl w-full max-w-md z-10 mx-4">
-                <h2 className="text-3xl font-bold text-center mb-2 bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+        <div className="min-h-screen flex items-center justify-center bg-[var(--vp-bg)] relative overflow-hidden px-4">
+            <div className="vp-panel p-8 w-full max-w-md z-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <h2 className="text-sm font-black text-center text-black uppercase tracking-tight mb-1">
                     Portal Escamax
                 </h2>
-                <p className="text-slate-400 text-center mb-8">Acesso Exclusivo Administrativo</p>
+                <p className="text-[10px] font-black text-[var(--vp-text-label)] text-center uppercase tracking-widest mb-8">
+                    Acesso Exclusivo Administrativo
+                </p>
 
                 {error && (
-                    <div className="bg-red-500/10 border border-red-500/20 text-red-200 p-3 rounded-lg mb-4 text-sm text-center">
+                    <div className="bg-red-50 border border-red-200 text-[var(--vp-danger)] p-3 rounded-sm mb-4 text-xs font-black text-center">
                         {error}
                     </div>
                 )}
 
                 {step === 1 ? (
                     <form onSubmit={handleEmailSubmit} className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-slate-300 mb-1">E-mail</label>
+                        <div className="space-y-1">
+                            <label className="block text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest leading-none">E-mail</label>
                             <input
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all"
+                                className="w-full bg-white border border-[var(--vp-border)] rounded-sm px-3 py-2 text-xs font-black text-black focus:outline-none focus:ring-1 focus:ring-[var(--vp-primary)] focus:border-[var(--vp-primary)] transition-all"
                                 placeholder="adm@escamax.com.br"
                                 required
                             />
                         </div>
                         <button
                             type="submit"
-                            className="w-full bg-accent hover:bg-sky-500 text-slate-900 font-bold py-2 rounded-lg transition-all shadow-lg shadow-accent/20"
+                            className="w-full bg-[var(--vp-primary)] hover:bg-[var(--vp-primary-dark)] text-white text-xs font-black uppercase tracking-widest py-2.5 rounded-sm transition-colors"
                         >
                             Solicitar Acesso
                         </button>
@@ -75,16 +71,16 @@ export default function LoginPage() {
                 ) : (
                     <form onSubmit={handleCodeSubmit} className="space-y-4">
                         <div className="text-center mb-4">
-                            <p className="text-sm text-slate-400">Código enviado para</p>
-                            <p className="text-white font-medium">{email}</p>
+                            <p className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest">Código enviado para</p>
+                            <p className="text-black font-black text-xs mt-1">{email}</p>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-slate-300 mb-1">Código de 6 dígitos</label>
+                        <div className="space-y-1">
+                            <label className="block text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest leading-none">Código de 6 dígitos</label>
                             <input
                                 type="text"
                                 value={code}
                                 onChange={(e) => setCode(e.target.value)}
-                                className="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-2 text-white text-center text-2xl tracking-widest focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all"
+                                className="w-full bg-white border border-[var(--vp-border)] rounded-sm px-4 py-2 text-black text-center text-2xl font-black tracking-widest focus:outline-none focus:ring-1 focus:ring-[var(--vp-primary)] focus:border-[var(--vp-primary)] transition-all"
                                 placeholder="000000"
                                 maxLength="6"
                                 required
@@ -92,14 +88,14 @@ export default function LoginPage() {
                         </div>
                         <button
                             type="submit"
-                            className="w-full bg-accent hover:bg-sky-500 text-slate-900 font-bold py-2 rounded-lg transition-all shadow-lg shadow-accent/20"
+                            className="w-full bg-[var(--vp-primary)] hover:bg-[var(--vp-primary-dark)] text-white text-xs font-black uppercase tracking-widest py-2.5 rounded-sm transition-colors"
                         >
                             Validar Token
                         </button>
                         <button
                             type="button"
                             onClick={() => setStep(1)}
-                            className="w-full text-slate-400 text-sm hover:text-white transition-colors"
+                            className="w-full text-[var(--vp-text-label)] text-[10px] font-black uppercase tracking-widest hover:text-black transition-colors"
                         >
                             Voltar
                         </button>

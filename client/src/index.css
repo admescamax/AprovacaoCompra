@@ -2,32 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ──────────────────────────────────────────────────────────────────────────
+   Identidade visual VerticalParts — corporativo, claro, industrial, compacto.
+   Tokens canônicos do design system (var(--vp-*)).
+   ────────────────────────────────────────────────────────────────────────── */
 :root {
+  --vp-primary: #1769ba;      /* azul corporativo VP */
+  --vp-primary-dark: #11528f; /* hover do primário */
+  --vp-border: #e5e7eb;       /* cinza claro de borda */
+  --vp-surface: #ffffff;      /* fundo de painéis */
+  --vp-bg: #f3f4f6;           /* fundo da aplicação */
+  --vp-bg-soft: #f8f9fa;      /* fundo de cabeçalhos de tabela / zonas */
+  --vp-text: #111827;         /* texto principal */
+  --vp-text-label: #6b7280;   /* texto de labels */
+  --vp-success: #16a34a;      /* verde */
+  --vp-warning: #d97706;      /* laranja */
+  --vp-danger: #dc2626;       /* vermelho */
+
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #020617; /* Slate 950 */
-  color: #f8fafc; /* Slate 50 */
+  background-color: var(--vp-bg);
+  color: var(--vp-text);
 }
 
-/* Glassmorphism Utilities */
-.glass {
-    background: rgba(30, 41, 59, 0.7);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+/* ──────────────────────────────────────────────────────────────────────────
+   Superfícies VP — substituem o antigo glassmorphism por painéis sólidos.
+   ────────────────────────────────────────────────────────────────────────── */
+.vp-panel {
+  background: var(--vp-surface);
+  border: 1px solid var(--vp-border);
+  border-radius: 0.125rem;            /* rounded-sm */
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
+.vp-card {
+  background: var(--vp-surface);
+  border: 1px solid var(--vp-border);
+  border-radius: 0.125rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Aliases de compatibilidade: qualquer markup remanescente que ainda use
+   .glass / .glass-panel passa a renderizar no padrão VP claro. */
+.glass,
 .glass-panel {
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  background: var(--vp-surface);
+  border: 1px solid var(--vp-border);
+  border-radius: 0.125rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }

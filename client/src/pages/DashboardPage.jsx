@@ -32,9 +32,9 @@ function BarChart({ data, valueKey, labelKey, formatValue, color }) {
             {ticks.map((t, i) => (
                 <g key={i}>
                     <line x1={PAD.left} y1={t.y} x2={W - PAD.right} y2={t.y}
-                        stroke="#334155" strokeWidth="1" strokeDasharray="4 3" />
+                        stroke="#e5e7eb" strokeWidth="1" strokeDasharray="4 3" />
                     <text x={PAD.left - 6} y={t.y + 4} textAnchor="end"
-                        fontSize="10" fill="#64748b">{t.label}</text>
+                        fontSize="10" fill="#9ca3af">{t.label}</text>
                 </g>
             ))}
 
@@ -46,10 +46,10 @@ function BarChart({ data, valueKey, labelKey, formatValue, color }) {
                 return (
                     <g key={i}>
                         <rect x={x} y={y} width={barW} height={barH}
-                            rx="4" fill={color} opacity="0.85" />
+                            rx="2" fill={color} opacity="0.9" />
                         {/* Label */}
                         <text x={x + barW / 2} y={H - PAD.bottom + 14}
-                            textAnchor="middle" fontSize="10" fill="#94a3b8">
+                            textAnchor="middle" fontSize="10" fill="#6b7280">
                             {fmtMes(d[labelKey])}
                         </text>
                     </g>
@@ -62,14 +62,14 @@ function BarChart({ data, valueKey, labelKey, formatValue, color }) {
 // ── KPI Card ─────────────────────────────────────────────────────────────────
 function KpiCard({ icon: Icon, label, value, sub, color }) {
     return (
-        <div className={`rounded-2xl border bg-slate-800/50 border-slate-700/50 p-5 flex items-start gap-4`}>
-            <div className={`rounded-xl p-3 ${color}`}>
-                <Icon size={22} className="text-white" />
+        <div className="vp-card p-5 flex items-start gap-4">
+            <div className={`rounded-sm p-3 ${color}`}>
+                <Icon size={20} className="text-white" />
             </div>
             <div>
-                <p className="text-xs text-slate-400 mb-1">{label}</p>
-                <p className="text-xl font-bold text-white leading-tight break-all">{value}</p>
-                {sub && <p className="text-xs text-slate-500 mt-1">{sub}</p>}
+                <p className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest mb-1">{label}</p>
+                <p className="text-lg font-black text-black leading-tight break-all">{value}</p>
+                {sub && <p className="text-[10px] text-gray-400 font-bold mt-1">{sub}</p>}
             </div>
         </div>
     );
@@ -82,22 +82,22 @@ function MonthTable({ meses }) {
         <div className="overflow-x-auto">
             <table className="w-full text-sm">
                 <thead>
-                    <tr className="border-b border-slate-700/50 text-left">
-                        <th className="pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wide">Mês</th>
-                        <th className="pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wide text-right">Pedidos</th>
-                        <th className="pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wide text-right">Valor Total</th>
-                        <th className="pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wide text-right">Sucesso</th>
-                        <th className="pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wide text-right">Erro</th>
+                    <tr className="border-b border-[var(--vp-border)] text-left">
+                        <th className="pb-2 text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest">Mês</th>
+                        <th className="pb-2 text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest text-right">Pedidos</th>
+                        <th className="pb-2 text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest text-right">Valor Total</th>
+                        <th className="pb-2 text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest text-right">Sucesso</th>
+                        <th className="pb-2 text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest text-right">Erro</th>
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-700/30">
+                <tbody>
                     {[...meses].reverse().map((m) => (
-                        <tr key={m.mes} className="hover:bg-slate-700/20 transition-colors">
-                            <td className="py-2.5 font-medium text-white">{fmtMes(m.mes)}</td>
-                            <td className="py-2.5 text-right text-slate-300">{m.pedidos}</td>
-                            <td className="py-2.5 text-right text-emerald-400 font-semibold">{BRL(m.valor)}</td>
-                            <td className="py-2.5 text-right text-emerald-400">{m.ok}</td>
-                            <td className="py-2.5 text-right text-red-400">{m.erro}</td>
+                        <tr key={m.mes} className="border-b border-[var(--vp-border)] hover:bg-gray-50 transition-colors">
+                            <td className="py-2.5 font-black text-black">{fmtMes(m.mes)}</td>
+                            <td className="py-2.5 text-right text-gray-600 font-bold">{m.pedidos}</td>
+                            <td className="py-2.5 text-right text-green-700 font-black">{BRL(m.valor)}</td>
+                            <td className="py-2.5 text-right text-green-700 font-bold">{m.ok}</td>
+                            <td className="py-2.5 text-right text-[var(--vp-danger)] font-bold">{m.erro}</td>
                         </tr>
                     ))}
                 </tbody>
@@ -131,12 +131,12 @@ export default function DashboardPage() {
 
     if (loading) return (
         <div className="max-w-5xl mx-auto space-y-4">
-            {[1, 2, 3].map(i => <div key={i} className="h-24 rounded-2xl bg-slate-800/40 animate-pulse border border-slate-700/50" />)}
+            {[1, 2, 3].map(i => <div key={i} className="h-24 rounded-sm bg-white animate-pulse border border-[var(--vp-border)]" />)}
         </div>
     );
 
     if (error) return (
-        <div className="max-w-5xl mx-auto p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 flex gap-2 items-center">
+        <div className="max-w-5xl mx-auto p-4 rounded-sm bg-red-50 border border-red-200 text-[var(--vp-danger)] text-xs font-black flex gap-2 items-center">
             <AlertCircle size={18} /> Erro ao carregar dashboard: {error}
         </div>
     );
@@ -148,19 +148,19 @@ export default function DashboardPage() {
     const hasMeses = meses.length > 0;
 
     return (
-        <div className="max-w-5xl mx-auto space-y-8">
+        <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Header */}
             <div>
-                <h1 className="text-2xl font-bold text-white mb-1">Dashboard</h1>
-                <p className="text-sm text-slate-400">Visão geral dos pedidos enviados.</p>
+                <h1 className="text-sm font-black text-black uppercase tracking-tight mb-1">Dashboard</h1>
+                <p className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest">Visão geral dos pedidos enviados.</p>
             </div>
 
             {/* KPIs */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <KpiCard icon={ShoppingCart} label="Total de Pedidos" value={totalPedidos}
-                    sub="todos os meses" color="bg-sky-600" />
+                    sub="todos os meses" color="bg-[var(--vp-primary)]" />
                 <KpiCard icon={DollarSign} label="Valor Total" value={BRL(totalGeral)}
-                    sub="soma de todos os pedidos" color="bg-emerald-600" />
+                    sub="soma de todos os pedidos" color="bg-green-600" />
                 <KpiCard icon={CheckCircle} label="Taxa de Sucesso" value={`${taxaSucesso}%`}
                     sub={`${totalOk} de ${totalPedidos} com sucesso`} color="bg-violet-600" />
                 <KpiCard icon={TrendingUp} label="Meses Ativos" value={meses.length}
@@ -172,35 +172,35 @@ export default function DashboardPage() {
                     {/* Charts row */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Pedidos por mês */}
-                        <div className="rounded-2xl border border-slate-700/50 bg-slate-800/50 p-5">
-                            <p className="text-sm font-semibold text-white mb-4">Pedidos por Mês</p>
+                        <div className="vp-card p-5">
+                            <p className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest mb-4">Pedidos por Mês</p>
                             <div className="h-44">
                                 <BarChart data={meses} valueKey="pedidos" labelKey="mes"
-                                    formatValue={v => Math.round(v)} color="#38bdf8" />
+                                    formatValue={v => Math.round(v)} color="#1769ba" />
                             </div>
                         </div>
 
                         {/* Valor por mês */}
-                        <div className="rounded-2xl border border-slate-700/50 bg-slate-800/50 p-5">
-                            <p className="text-sm font-semibold text-white mb-4">Valor por Mês (R$)</p>
+                        <div className="vp-card p-5">
+                            <p className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest mb-4">Valor por Mês (R$)</p>
                             <div className="h-44">
                                 <BarChart data={meses} valueKey="valor" labelKey="mes"
                                     formatValue={v => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : Math.round(v)}
-                                    color="#34d399" />
+                                    color="#16a34a" />
                             </div>
                         </div>
                     </div>
 
                     {/* Table */}
-                    <div className="rounded-2xl border border-slate-700/50 bg-slate-800/50 p-5">
-                        <p className="text-sm font-semibold text-white mb-4">Resumo por Mês</p>
+                    <div className="vp-card p-5">
+                        <p className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest mb-4">Resumo por Mês</p>
                         <MonthTable meses={meses} />
                     </div>
                 </>
             ) : (
-                <div className="text-center py-20 text-slate-500">
+                <div className="text-center py-20 text-gray-400">
                     <TrendingUp size={40} className="mx-auto mb-3 opacity-30" />
-                    <p className="text-sm">Nenhum pedido registrado ainda.<br />Os dados aparecerão aqui após o primeiro checkout.</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest leading-relaxed">Nenhum pedido registrado ainda.<br />Os dados aparecerão aqui após o primeiro checkout.</p>
                 </div>
             )}
         </div>
