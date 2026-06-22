@@ -26,8 +26,8 @@ const PRIORIDADES = [
 function SectionHeader({ icon: Icon, label }) {
     return (
         <div className="flex items-center gap-2 mb-3">
-            <Icon size={13} className="text-[var(--vp-primary)]" />
-            <span className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest">{label}</span>
+            <Icon size={13} className="text-primary-dark" />
+            <span className="text-[11px] font-bold text-neutral-500 uppercase tracking-[0.14em]">{label}</span>
         </div>
     );
 }
@@ -42,20 +42,23 @@ function RadioGroup({ options, value, onChange, columns = 1 }) {
                         key={opt.value}
                         type="button"
                         onClick={() => onChange(opt.value)}
-                        className={`rounded-sm border px-3 py-2 text-left transition-colors text-xs font-black
+                        className={`rounded border px-3 py-2 text-left transition-colors text-xs font-semibold
                             ${active
-                                ? 'bg-[var(--vp-primary)]/10 border-[var(--vp-primary)] text-[var(--vp-primary)]'
-                                : 'bg-white border-[var(--vp-border)] text-[var(--vp-text-label)] hover:border-gray-400 hover:text-black'
+                                ? 'bg-primary/15 border-primary text-black'
+                                : 'bg-white border-neutral-200 text-neutral-500 hover:border-neutral-400 hover:text-black'
                             }`}
                     >
                         <span className="block">{opt.label}</span>
-                        {opt.sub && <span className={`text-[10px] font-bold ${active ? 'text-[var(--vp-primary)]/70' : 'text-gray-400'}`}>{opt.sub}</span>}
+                        {opt.sub && <span className={`text-[10px] font-medium ${active ? 'text-primary-dark' : 'text-neutral-400'}`}>{opt.sub}</span>}
                     </button>
                 );
             })}
         </div>
     );
 }
+
+const inputCls = "w-full bg-white border border-neutral-200 rounded px-3 py-2 text-black text-xs outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20 transition placeholder:text-neutral-400";
+const labelCls = "text-[11px] font-bold text-neutral-500 uppercase tracking-[0.12em] block mb-1";
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
@@ -157,35 +160,35 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
     return (
         <>
             {/* Backdrop */}
-            <div className="fixed inset-0 bg-black/40 z-[100]" onClick={onClose} />
+            <div className="fixed inset-0 bg-black/50 z-[100]" onClick={onClose} />
 
             {/* Sidebar */}
-            <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white border-l border-[var(--vp-border)] z-[101] shadow-lg flex flex-col animate-in slide-in-from-right duration-300">
+            <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white border-l border-neutral-200 z-[101] shadow-xl flex flex-col animate-in slide-in-from-right duration-300">
 
                 {/* Header */}
-                <div className="p-5 border-b border-[var(--vp-border)] flex justify-between items-center bg-[var(--vp-bg-soft)] shrink-0">
+                <div className="p-5 border-b border-neutral-200 flex justify-between items-center bg-neutral-50 shrink-0">
                     <div className="flex items-center gap-3">
-                        <ShoppingCart className="text-[var(--vp-primary)]" size={20} />
-                        <h2 className="text-sm font-black text-black uppercase tracking-tight">Meu Carrinho</h2>
-                        <span className="bg-[var(--vp-primary)] text-white text-[10px] font-black px-2 py-0.5 rounded-sm">
+                        <ShoppingCart className="text-primary-dark" size={20} />
+                        <h2 className="font-display text-xl text-black">Meu Carrinho</h2>
+                        <span className="bg-primary text-black text-[10px] font-black px-2 py-0.5 rounded-full">
                             {totalItems}
                         </span>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-sm transition-colors text-gray-400">
+                    <button onClick={onClose} className="p-2 hover:bg-neutral-200 rounded transition-colors text-neutral-400">
                         <X size={22} />
                     </button>
                 </div>
 
                 {/* Seleção de Unidade */}
-                <div className="px-5 py-3 bg-[var(--vp-bg-soft)] border-b border-[var(--vp-border)] shrink-0">
-                    <label className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest mb-1.5 block">
+                <div className="px-5 py-3 bg-neutral-50 border-b border-neutral-200 shrink-0">
+                    <label className="text-[11px] font-bold text-neutral-500 uppercase tracking-[0.12em] mb-1.5 block">
                         Unidade Escamax Requisitante
                     </label>
                     <select
                         value={selectedBranch}
                         onChange={(e) => setSelectedBranch(e.target.value)}
-                        className={`w-full bg-white border rounded-sm px-3 py-2 text-xs font-black focus:ring-1 focus:ring-[var(--vp-primary)] outline-none transition-all ${
-                            selectedBranch ? 'border-[var(--vp-border)] text-black' : 'border-amber-400 text-gray-500'
+                        className={`w-full bg-white border rounded px-3 py-2 text-sm outline-none focus:ring-[3px] focus:ring-primary/20 transition ${
+                            selectedBranch ? 'border-neutral-200 text-black focus:border-primary' : 'border-amber-400 text-neutral-500'
                         }`}
                     >
                         <option value="" disabled>Escolha a unidade...</option>
@@ -203,41 +206,41 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                     {/* Itens */}
                     <div className="p-5 space-y-3">
                         {cart.length === 0 ? (
-                            <div className="py-16 flex flex-col items-center justify-center text-gray-400 gap-4">
+                            <div className="py-16 flex flex-col items-center justify-center text-neutral-400 gap-4">
                                 <ShoppingCart size={48} className="opacity-20" />
-                                <p className="text-[10px] font-black uppercase tracking-widest">Seu carrinho está vazio.</p>
+                                <p className="text-sm font-medium">Seu carrinho está vazio.</p>
                             </div>
                         ) : (
                             cart.map((item) => (
-                                <div key={item.codigo} className="vp-card p-4 flex gap-3 group">
-                                    <div className="w-14 h-14 rounded-sm bg-[var(--vp-bg-soft)] border border-[var(--vp-border)] overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                <div key={item.codigo} className="rounded-xl border border-neutral-200 bg-white shadow-card p-4 flex gap-3 group">
+                                    <div className="w-14 h-14 rounded bg-neutral-50 border border-neutral-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
                                         {item.url_imagem ? (
                                             <img src={item.url_imagem} alt={item.descricao} className="w-full h-full object-contain" />
                                         ) : (
-                                            <ImageIcon size={18} className="text-gray-300" />
+                                            <ImageIcon size={18} className="text-neutral-300" />
                                         )}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex justify-between items-start gap-2">
-                                            <h4 className="text-xs font-black text-black leading-tight" title={item.descricao}>{item.descricao}</h4>
-                                            <button onClick={() => removeFromItem(item.codigo)} className="text-gray-400 hover:text-[var(--vp-danger)] transition-colors shrink-0">
+                                            <h4 className="text-xs font-bold text-black leading-tight" title={item.descricao}>{item.descricao}</h4>
+                                            <button onClick={() => removeFromItem(item.codigo)} className="text-neutral-400 hover:text-danger transition-colors shrink-0">
                                                 <Trash2 size={14} />
                                             </button>
                                         </div>
-                                        <p className="text-[10px] font-mono text-gray-400 mb-1.5">{item.codigo}</p>
+                                        <p className="text-[10px] font-mono text-neutral-400 mb-1.5">{item.codigo}</p>
                                         <div className="flex justify-between items-center">
-                                            <span className="text-green-700 font-black text-sm">
+                                            <span className="text-green-600 font-bold text-sm">
                                                 {item.mmBased ? `${formatarMoeda(item.preco)}/mm` : formatarMoeda(item.preco)}
                                             </span>
                                             {item.mmBased ? (
-                                                <span className="text-xs font-black text-[var(--vp-warning)] bg-amber-50 border border-amber-200 px-2 py-1 rounded-sm">
+                                                <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded">
                                                     {item.quantity} mm
                                                 </span>
                                             ) : (
-                                                <div className="flex items-center bg-white rounded-sm border border-[var(--vp-border)]">
-                                                    <button onClick={() => updateQuantity(item.codigo, -1)} className="p-1 text-gray-500 hover:text-[var(--vp-primary)] transition-colors"><Minus size={12} /></button>
-                                                    <span className="w-7 text-center text-xs font-black text-black">{item.quantity}</span>
-                                                    <button onClick={() => updateQuantity(item.codigo, 1)} className="p-1 text-gray-500 hover:text-[var(--vp-primary)] transition-colors"><Plus size={12} /></button>
+                                                <div className="flex items-center bg-white rounded border border-neutral-200">
+                                                    <button onClick={() => updateQuantity(item.codigo, -1)} className="p-1 text-neutral-500 hover:text-primary-dark transition-colors"><Minus size={12} /></button>
+                                                    <span className="w-7 text-center text-xs font-bold text-black">{item.quantity}</span>
+                                                    <button onClick={() => updateQuantity(item.codigo, 1)} className="p-1 text-neutral-500 hover:text-primary-dark transition-colors"><Plus size={12} /></button>
                                                 </div>
                                             )}
                                         </div>
@@ -249,7 +252,7 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
 
                     {/* ── Detalhes do Pedido ─────────────────────────────────────── */}
                     {cart.length > 0 && (
-                        <div className="px-5 pb-5 space-y-5 border-t border-[var(--vp-border)] pt-4">
+                        <div className="px-5 pb-5 space-y-5 border-t border-neutral-200 pt-4">
 
                             {/* Finalidade */}
                             <div>
@@ -287,14 +290,14 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                                                 key={opt.value}
                                                 type="button"
                                                 onClick={() => setTipoFrete(opt.value)}
-                                                className={`rounded-sm border px-3 py-2 text-left text-xs font-black transition-colors flex items-center gap-2
+                                                className={`rounded border px-3 py-2 text-left text-xs font-semibold transition-colors flex items-center gap-2
                                                     ${active
-                                                        ? 'bg-[var(--vp-primary)]/10 border-[var(--vp-primary)] text-[var(--vp-primary)]'
-                                                        : 'bg-white border-[var(--vp-border)] text-[var(--vp-text-label)] hover:border-gray-400 hover:text-black'
+                                                        ? 'bg-primary/15 border-primary text-black'
+                                                        : 'bg-white border-neutral-200 text-neutral-500 hover:border-neutral-400 hover:text-black'
                                                     }`}
                                             >
-                                                <span className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${active ? 'border-[var(--vp-primary)]' : 'border-gray-300'}`}>
-                                                    {active && <span className="w-2 h-2 rounded-full bg-[var(--vp-primary)]" />}
+                                                <span className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${active ? 'border-primary' : 'border-neutral-300'}`}>
+                                                    {active && <span className="w-2 h-2 rounded-full bg-primary" />}
                                                 </span>
                                                 {opt.label}
                                             </button>
@@ -305,13 +308,13 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                                 {/* Campo condicional: Endereço de Entrega (CIF) */}
                                 {tipoFrete === '0' && (
                                     <div className="mt-3 animate-in fade-in slide-in-from-top-2 duration-200">
-                                        <label className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest block mb-1">Endereço de Entrega</label>
+                                        <label className={labelCls}>Endereço de Entrega</label>
                                         <textarea
                                             value={enderecoEntrega}
                                             onChange={e => setEnderecoEntrega(e.target.value)}
                                             placeholder="Rua, número, bairro, cidade, estado, CEP..."
                                             rows={2}
-                                            className="w-full bg-white border border-[var(--vp-border)] rounded-sm px-3 py-2 text-black text-xs font-bold focus:outline-none focus:ring-1 focus:ring-[var(--vp-primary)] focus:border-[var(--vp-primary)] transition-colors resize-none placeholder:text-gray-400"
+                                            className={`${inputCls} resize-none`}
                                         />
                                     </div>
                                 )}
@@ -320,23 +323,23 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                                 {tipoFrete === '2' && (
                                     <div className="mt-3 space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
                                         <div>
-                                            <label className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest block mb-1">Razão Social da Transportadora</label>
+                                            <label className={labelCls}>Razão Social da Transportadora</label>
                                             <input
                                                 type="text"
                                                 value={transportadoraRazao}
                                                 onChange={e => setTransportadoraRazao(e.target.value)}
                                                 placeholder="Ex: Transportes ABC Ltda"
-                                                className="w-full bg-white border border-[var(--vp-border)] rounded-sm px-3 py-2 text-black text-xs font-bold focus:outline-none focus:ring-1 focus:ring-[var(--vp-primary)] focus:border-[var(--vp-primary)] transition-colors placeholder:text-gray-400"
+                                                className={inputCls}
                                             />
                                         </div>
                                         <div>
-                                            <label className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest block mb-1">CNPJ da Transportadora</label>
+                                            <label className={labelCls}>CNPJ da Transportadora</label>
                                             <input
                                                 type="text"
                                                 value={transportadoraCnpj}
                                                 onChange={e => setTransportadoraCnpj(e.target.value)}
                                                 placeholder="00.000.000/0000-00"
-                                                className="w-full bg-white border border-[var(--vp-border)] rounded-sm px-3 py-2 text-black text-xs font-bold focus:outline-none focus:ring-1 focus:ring-[var(--vp-primary)] focus:border-[var(--vp-primary)] transition-colors placeholder:text-gray-400"
+                                                className={inputCls}
                                             />
                                         </div>
                                     </div>
@@ -349,7 +352,7 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                                 <div className="space-y-2">
                                     <div className="grid grid-cols-2 gap-2">
                                         <div>
-                                            <label className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest block mb-1">Valor da Entrada (R$)</label>
+                                            <label className={labelCls}>Valor da Entrada (R$)</label>
                                             <input
                                                 type="number"
                                                 min="0"
@@ -357,26 +360,26 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                                                 placeholder="0,00"
                                                 value={valorEntrada}
                                                 onChange={e => setValorEntrada(e.target.value)}
-                                                className="w-full bg-white border border-[var(--vp-border)] rounded-sm px-3 py-2 text-black text-xs font-bold focus:outline-none focus:ring-1 focus:ring-[var(--vp-primary)] focus:border-[var(--vp-primary)] transition-colors"
+                                                className={inputCls}
                                             />
                                         </div>
                                         <div>
-                                            <label className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest block mb-1">Data da Entrada</label>
+                                            <label className={labelCls}>Data da Entrada</label>
                                             <input
                                                 type="date"
                                                 min={today}
                                                 value={dataEntrada}
                                                 onChange={e => setDataEntrada(e.target.value)}
-                                                className="w-full bg-white border border-[var(--vp-border)] rounded-sm px-3 py-2 text-black text-xs font-bold focus:outline-none focus:ring-1 focus:ring-[var(--vp-primary)] focus:border-[var(--vp-primary)] transition-colors"
+                                                className={inputCls}
                                             />
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="text-[10px] font-black text-[var(--vp-text-label)] uppercase tracking-widest block mb-1">Restante em quantas parcelas</label>
+                                        <label className={labelCls}>Restante em quantas parcelas</label>
                                         <select
                                             value={parcelas}
                                             onChange={e => setParcelas(e.target.value)}
-                                            className="w-full bg-white border border-[var(--vp-border)] rounded-sm px-3 py-2 text-black text-xs font-bold focus:outline-none focus:ring-1 focus:ring-[var(--vp-primary)] focus:border-[var(--vp-primary)] transition-colors"
+                                            className={inputCls}
                                         >
                                             <option value="0">À vista (sem parcelamento)</option>
                                             {[...Array(11)].map((_, i) => (
@@ -392,23 +395,23 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
 
                 {/* Footer / Checkout */}
                 {cart.length > 0 && (
-                    <div className="p-5 bg-[var(--vp-bg-soft)] border-t border-[var(--vp-border)] space-y-3 shrink-0">
+                    <div className="p-5 bg-neutral-50 border-t border-neutral-200 space-y-3 shrink-0">
                         <div className="flex justify-between items-center">
-                            <span className="text-[var(--vp-text-label)] text-[10px] font-black uppercase tracking-widest">Total do Pedido</span>
-                            <span className="text-xl font-black text-black">{formatarMoeda(totalPrice)}</span>
+                            <span className="text-neutral-500 text-[11px] font-bold uppercase tracking-[0.12em]">Total do Pedido</span>
+                            <span className="text-xl font-bold text-black">{formatarMoeda(totalPrice)}</span>
                         </div>
 
                         {checkoutStatus === 'success' ? (
-                            <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded-sm flex items-center gap-3">
+                            <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded flex items-center gap-3">
                                 <CheckCircle size={20} />
-                                <span className="text-xs font-black">Requisição e Pedido criados no Omie!</span>
+                                <span className="text-sm font-bold">Requisição e Pedido criados no Omie!</span>
                             </div>
                         ) : checkoutStatus === 'error' ? (
-                            <div className="bg-red-50 border border-red-200 text-[var(--vp-danger)] p-4 rounded-sm flex items-center gap-3">
+                            <div className="bg-red-50 border border-red-200 text-danger p-4 rounded flex items-center gap-3">
                                 <X size={20} className="flex-shrink-0" />
                                 <div className="flex flex-col">
-                                    <span className="text-xs font-black">Erro no Pedido</span>
-                                    <span className="text-[11px] font-bold leading-tight opacity-90">{errorMessage}</span>
+                                    <span className="text-sm font-bold">Erro no Pedido</span>
+                                    <span className="text-[11px] leading-tight opacity-90">{errorMessage}</span>
                                 </div>
                             </div>
                         ) : (
@@ -420,7 +423,7 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                                     (tipoFrete === '0' && !enderecoEntrega.trim()) ||
                                     (tipoFrete === '2' && (!transportadoraRazao.trim() || !transportadoraCnpj.trim()))
                                 }
-                                className="w-full bg-[var(--vp-primary)] hover:bg-[var(--vp-primary-dark)] disabled:bg-gray-200 disabled:text-gray-400 text-white text-xs font-black uppercase tracking-widest py-3.5 rounded-sm transition-colors flex items-center justify-center gap-3 active:scale-95"
+                                className="w-full bg-primary hover:bg-primary-light hover:shadow-brand-sm disabled:bg-neutral-200 disabled:text-neutral-400 text-black font-bold py-3.5 rounded transition-all flex items-center justify-center gap-3 active:scale-95 disabled:cursor-not-allowed"
                             >
                                 {isCheckingOut ? (
                                     <>
@@ -432,7 +435,7 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                                 )}
                             </button>
                         )}
-                        <p className="text-[10px] font-bold text-center text-gray-400">
+                        <p className="text-[10px] text-center text-neutral-400">
                             Ao finalizar, uma Requisição de Compra será criada na filial <strong>{selectedBranch}</strong> e um Pedido de Venda na <strong>VerticalParts</strong>.
                         </p>
                     </div>
