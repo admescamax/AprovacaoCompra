@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, X, Plus, Minus, Trash2, CheckCircle, Loader2, Image as ImageIcon, Truck, Star, CreditCard, Tag } from 'lucide-react';
-
-const BRANCHES = [
-    { id: 'SAOPAULO', name: 'Escamax - São Paulo' },
-    { id: 'BRASILIA', name: 'Escamax - Brasília' },
-    { id: 'SALVADOR', name: 'Escamax - Salvador' },
-    { id: 'FLORIANOPOLIS', name: 'Escamax - Florianópolis' },
-    { id: 'PICARRAS', name: 'Escamax - Piçarras' },
-];
+import { ShoppingCart, X, Plus, Minus, Trash2, CheckCircle, Loader2, Image as ImageIcon, Truck, Star, CreditCard, Tag, MapPin } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const TIPOS_FRETE = [
     { value: '0', label: 'CIF – Por conta da VerticalParts' },
@@ -63,7 +56,7 @@ const labelCls = "text-[11px] font-bold text-neutral-500 uppercase tracking-[0.1
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, removeFromItem, clearCart }) {
-    const [selectedBranch, setSelectedBranch] = useState('');
+    const { filial } = useAuth();
     const [isCheckingOut, setIsCheckingOut] = useState(false);
     const [checkoutStatus, setCheckoutStatus] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
@@ -110,7 +103,7 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    unidade: selectedBranch,
+                    unidade: filial?.id,
                     itens: cart.map(item => ({
                         codigo: item.codigo,
                         quantidade: item.quantity,
@@ -179,25 +172,17 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                     </button>
                 </div>
 
-                {/* Seleção de Unidade */}
+                {/* Filial requisitante (vem do contexto) */}
                 <div className="px-5 py-3 bg-neutral-50 border-b border-neutral-200 shrink-0">
-                    <label className="text-[11px] font-bold text-neutral-500 uppercase tracking-[0.12em] mb-1.5 block">
-                        Unidade Escamax Requisitante
-                    </label>
-                    <select
-                        value={selectedBranch}
-                        onChange={(e) => setSelectedBranch(e.target.value)}
-                        className={`w-full bg-white border rounded px-3 py-2 text-sm outline-none focus:ring-[3px] focus:ring-primary/20 transition ${
-                            selectedBranch ? 'border-neutral-200 text-black focus:border-primary' : 'border-amber-400 text-neutral-500'
-                        }`}
-                    >
-                        <option value="" disabled>Escolha a unidade...</option>
-                        {BRANCHES.map(branch => (
-                            <option key={branch.id} value={branch.id} disabled={branch.disabled}>
-                                {branch.name}
-                            </option>
-                        ))}
-                    </select>
+                    <p className="text-[11px] font-bold text-neutral-500 uppercase tracking-[0.12em] mb-1.5">
+                        Unidade Requisitante
+                    </p>
+                    <div className="flex items-center gap-2 rounded border border-neutral-200 bg-white px-3 py-2">
+                        <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
+                        <span className="text-sm font-bold text-black">
+                            {filial ? `Escamax ${filial.label}` : '—'}
+                        </span>
+                    </div>
                 </div>
 
                 {/* Scroll area: itens + detalhes do pedido */}
@@ -419,7 +404,7 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                                 onClick={handleCheckout}
                                 disabled={
                                     isCheckingOut ||
-                                    !selectedBranch ||
+                                    !filial ||
                                     (tipoFrete === '0' && !enderecoEntrega.trim()) ||
                                     (tipoFrete === '2' && (!transportadoraRazao.trim() || !transportadoraCnpj.trim()))
                                 }
@@ -436,7 +421,7 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                             </button>
                         )}
                         <p className="text-[10px] text-center text-neutral-400">
-                            Ao finalizar, uma Requisição de Compra será criada na filial <strong>{selectedBranch}</strong> e um Pedido de Venda na <strong>VerticalParts</strong>.
+                            Ao finalizar, um Pedido de Compra será criado em <strong>Escamax {filial?.label}</strong> e um Pedido de Venda na <strong>VerticalParts</strong>.
                         </p>
                     </div>
                 )}

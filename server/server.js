@@ -11,6 +11,9 @@ const authRoutes = require('./routes/auth');
 const partsRoutes = require('./routes/parts');
 const checkoutRoutes = require('./routes/checkout');
 const ordersRoutes = require('./routes/orders');
+const produtosVPRoutes = require('./routes/produtosVP');
+const cron = require('node-cron');
+const { syncOmieProdutos } = require('./services/omieVPSync');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -31,6 +34,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/parts', partsRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/api/orders', ordersRoutes);
+app.use('/api/produtos-vp', produtosVPRoutes);
 
 // Health Check
 app.get('/health', (req, res) => {
@@ -41,6 +45,12 @@ app.get('/health', (req, res) => {
 app.use((req, res) => {
     logger.warn(`404 NOT FOUND: ${req.method} ${req.url}`);
     res.status(404).json({ error: 'Rota não encontrada no servidor backend', path: req.url });
+});
+
+// Sync Omie → Supabase 4x por dia: 06h, 12h, 18h, 23h (horário do servidor)
+cron.schedule('0 6,12,18,23 * * *', () => {
+    logger.info('[cron] Iniciando sync automático Omie VP...');
+    syncOmieProdutos().catch(err => logger.error(`[cron] Sync error: ${err.message}`));
 });
 
 app.listen(PORT, () => {

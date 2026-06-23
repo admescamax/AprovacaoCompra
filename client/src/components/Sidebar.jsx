@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Package, LogOut, BarChart2, PackageX } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import { Search, Package, LogOut, BarChart2, PackageX, Boxes, MapPin, ChevronsUpDown } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 function contarDemandas() {
     try { return JSON.parse(localStorage.getItem('escamax_demandas') || '[]').length; }
@@ -9,12 +10,15 @@ function contarDemandas() {
 
 const NAV = [
     { to: '/', icon: Search, label: 'Consultar Peças' },
+    { to: '/produtos-vp', icon: Boxes, label: 'Produtos VerticalParts' },
     { to: '/history', icon: Package, label: 'Histórico de Pedidos' },
     { to: '/sem-estoque', icon: PackageX, label: 'Peças Sem Estoque', badge: true },
     { to: '/dashboard', icon: BarChart2, label: 'Dashboard' },
 ];
 
 export default function Sidebar({ logout }) {
+    const { filial } = useAuth();
+    const navigate = useNavigate();
     const [totalDemandas, setTotalDemandas] = useState(contarDemandas);
 
     useEffect(() => {
@@ -55,6 +59,24 @@ export default function Sidebar({ logout }) {
                     </NavLink>
                 ))}
             </nav>
+
+            {/* Filial ativa */}
+            {filial && (
+                <div className="px-3 pb-1">
+                    <button
+                        onClick={() => navigate('/selecionar-filial')}
+                        className="flex w-full items-center gap-2.5 rounded-lg border border-surface-border bg-surface-card px-3 py-2.5 text-left transition-all hover:border-primary/50 group"
+                        title="Trocar filial"
+                    >
+                        <MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />
+                        <div className="min-w-0 flex-1">
+                            <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">Filial ativa</p>
+                            <p className="text-xs font-bold text-white truncate">{filial.label}</p>
+                        </div>
+                        <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-neutral-600 group-hover:text-primary transition-colors" />
+                    </button>
+                </div>
+            )}
 
             {/* Rodapé: logout */}
             <div className="border-t border-surface-border p-3">

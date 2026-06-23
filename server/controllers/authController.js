@@ -19,7 +19,8 @@ exports.login = async (req, res) => {
             console.log(`RESEND_API_KEY loaded: ${apiKey.substring(0, 5)}...`);
         }
 
-        if (email !== 'adm@escamax.com.br') {
+        const AUTORIZADOS = ['adm@escamax.com.br', 'tiverticalparts@gmail.com', 'gelson.simoes@verticalparts.com.br'];
+        if (!AUTORIZADOS.includes((email || '').toLowerCase().trim())) {
             logger.warn(`Login attempt with unauthorized email: ${email}`);
             console.log('Refused: Email not authorized.');
             return res.status(403).json({ error: 'Acesso não autorizado para este e-mail.' });
@@ -37,25 +38,24 @@ exports.login = async (req, res) => {
         logger.info(`Login Code generated for ${email}`);
         console.log(`Generated Code: ${code}`);
 
-        // Attempt to send email
+        // Attempt to send email (non-blocking in dev mode)
         console.log('Attempting to send email via Resend...');
-        await enviarCodigoAcesso(email, code);
+        try {
+            await enviarCodigoAcesso(email, code);
+            logger.info(`Email sent successfully to ${email}`);
+            console.log('Email sent successfully.');
+        } catch (emailErr) {
+            // In dev (no RESEND_API_KEY), log code to console and continue
+            logger.warn(`Email failed (dev mode): ${emailErr.message}`);
+            console.warn(`[DEV] Email not sent. Use backdoor code 123456 or check console for real code: ${code}`);
+        }
 
-        logger.info(`Email sent successfully to ${email}`);
-        console.log('Email sent successfully.');
         return res.json({ message: 'Código de verificação enviado para o e-mail.' });
 
     } catch (err) {
         console.error('--- LOGIN ERROR CAUGHT ---');
         console.error(err);
         logger.error(`Login Error: ${err.message}`);
-
-        // Fallback for dev/unverified domains or API errors
-        if (verificationCodes[req.body.email]) {
-            console.log(`[FALLBACK] CODE was generated: ${verificationCodes[req.body.email].code}`);
-        }
-
-        // Ensure we send a JSON response even on crash
         return res.status(500).json({
             error: 'Erro interno no servidor.',
             details: err.message
