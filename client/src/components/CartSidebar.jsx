@@ -55,7 +55,7 @@ const labelCls = "text-[11px] font-bold text-neutral-500 uppercase tracking-[0.1
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
-export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, removeFromItem, clearCart }) {
+export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, removeFromItem, clearCart, pedidoVendaRef }) {
     const { filial } = useAuth();
     const [isCheckingOut, setIsCheckingOut] = useState(false);
     const [checkoutStatus, setCheckoutStatus] = useState(null);
@@ -104,6 +104,7 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                 },
                 body: JSON.stringify({
                     unidade: filial?.id,
+                    pedidoVendaRef: pedidoVendaRef || null,
                     itens: cart.map(item => ({
                         codigo: item.codigo,
                         quantidade: item.quantity,
@@ -173,16 +174,31 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                 </div>
 
                 {/* Filial requisitante (vem do contexto) */}
-                <div className="px-5 py-3 bg-neutral-50 border-b border-neutral-200 shrink-0">
-                    <p className="text-[11px] font-bold text-neutral-500 uppercase tracking-[0.12em] mb-1.5">
-                        Unidade Requisitante
-                    </p>
-                    <div className="flex items-center gap-2 rounded border border-neutral-200 bg-white px-3 py-2">
-                        <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
-                        <span className="text-sm font-bold text-black">
-                            {filial ? `Escamax ${filial.label}` : '—'}
-                        </span>
+                <div className="px-5 py-3 bg-neutral-50 border-b border-neutral-200 shrink-0 space-y-2">
+                    <div>
+                        <p className="text-[11px] font-bold text-neutral-500 uppercase tracking-[0.12em] mb-1.5">
+                            Unidade Requisitante
+                        </p>
+                        <div className="flex items-center gap-2 rounded border border-neutral-200 bg-white px-3 py-2">
+                            <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
+                            <span className="text-sm font-bold text-black">
+                                {filial ? `Escamax ${filial.label}` : '—'}
+                            </span>
+                        </div>
                     </div>
+                    {pedidoVendaRef && (
+                        <div>
+                            <p className="text-[11px] font-bold text-neutral-500 uppercase tracking-[0.12em] mb-1.5">
+                                Pedido de Venda Vinculado
+                            </p>
+                            <div className="flex items-center gap-2 rounded border border-green-200 bg-green-50 px-3 py-2">
+                                <Tag className="h-3.5 w-3.5 text-green-600 shrink-0" />
+                                <span className="text-sm font-bold text-green-800 font-mono">
+                                    Nº {pedidoVendaRef}
+                                </span>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Scroll area: itens + detalhes do pedido */}

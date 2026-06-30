@@ -181,7 +181,7 @@ exports.listarTodos = async () => {
         }
 
         // Filtra todos os produtos VerticalParts (prefixo VP) com estoque > 0
-        const PREFIXOS_EXCLUIDOS = ['VPAT', 'VPMP', 'VPCON', 'VP-E', 'VP-P', 'VPKIT-', 'VPPKIT-'];
+        const PREFIXOS_EXCLUIDOS = ['VPAT', 'VPMP', 'VPCON', 'VPIN', 'VP-E', 'VP-P', 'VPKIT-', 'VPPKIT-'];
         const resultado = produtosCadastro
             .filter(p => {
                 // Filtra apenas ativos
@@ -696,6 +696,40 @@ exports.atualizarDespesasPedidoCompra = async ({ unidade, nCodPed, nValDesp }) =
         cabecalho_alterar: { nCodPed },
         frete_alterar: { nValDesp },
     }, unidade);
+};
+
+// ─── consultarPedidoVenda: valida pedido de venda da filial Escamax ───────────
+exports.consultarPedidoVenda = async (numeroPedido, unidade) => {
+    const numeroInt = parseInt(numeroPedido, 10);
+    if (isNaN(numeroInt)) throw new Error('Número do pedido inválido');
+
+    const data = await omiePost('produtos/pedido/', 'ListarPedidos', {
+        pagina: 1,
+        registros_por_pagina: 1,
+        nNumPedido: numeroInt,
+    }, unidade);
+
+    const pedidos = data.pedido_venda_produto || [];
+    if (pedidos.length === 0) return null;
+
+    const pedido = pedidos[0];
+    const cab = pedido.cabecalho || {};
+    const info = pedido.informacoes_adicionais || {};
+
+    // Garante que o número retornado bate com o buscado
+    const numRetornado = parseInt(cab.numero_pedido, 10);
+    if (numRetornado && numRetornado !== numeroInt) return null;
+
+    const vendedor =
+        info.nome_vendedor ||
+        info.vendedor ||
+        cab.nome_vendedor ||
+        null;
+
+    return {
+        numero: cab.numero_pedido || numeroPedido,
+        vendedor,
+    };
 };
 
 // ─── Helpers Consulta ─────────────────────────────────────────────────────────

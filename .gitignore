@@ -23,6 +23,11 @@ build/
 out/
 .next/
 
+# Codex local outputs
+.codex/*.log
+.codex/vendas-pecas-empresa-manutencao-2025-2026.json
+.codex/catalogo-publicado-vendidos-com-estoque.json
+
 # IDE / System files
 .DS_Store
 .vscode/

@@ -12,6 +12,7 @@ const partsRoutes = require('./routes/parts');
 const checkoutRoutes = require('./routes/checkout');
 const ordersRoutes = require('./routes/orders');
 const produtosVPRoutes = require('./routes/produtosVP');
+const omieRoutes = require('./routes/omie');
 const cron = require('node-cron');
 const { syncOmieProdutos } = require('./services/omieVPSync');
 
@@ -35,6 +36,7 @@ app.use('/api/parts', partsRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/produtos-vp', produtosVPRoutes);
+app.use('/api/omie', omieRoutes);
 
 // Health Check
 app.get('/health', (req, res) => {

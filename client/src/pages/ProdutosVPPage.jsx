@@ -1,12 +1,24 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, RefreshCw, Package, AlertTriangle, ChevronUp, ChevronDown } from 'lucide-react';
+import {
+    Search, RefreshCw, Package, AlertTriangle, ChevronUp, ChevronDown,
+    Lock, ShoppingCart, Plus, CheckCircle2, Loader2, XCircle, Tag,
+} from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const SUPABASE_URL = 'https://hhgvlcskxopryqvhofsg.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoZ3ZsY3NreG9wcnlxdmhvZnNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODc0NjIsImV4cCI6MjA5MDM2MzQ2Mn0.Hzl6k-TM_U1Ae8cNUPtz8MFBbZ4EVF3EGOhvgV7xnqk';
+const PREFIXOS_INTERNOS = ['VPCON', 'VPIN'];
+
+function getCodigoVP(produto) {
+    const codigo = String(produto?.codigo ?? '').trim();
+    if (!/^VP/i.test(codigo)) return '';
+    if (PREFIXOS_INTERNOS.some(prefix => codigo.toUpperCase().startsWith(prefix))) return '';
+    return codigo;
+}
 
 async function fetchProdutos() {
     const resp = await fetch(
-        `${SUPABASE_URL}/rest/v1/omie_produtos?select=codigo_produto,descricao,unidade,estoque_atual,valor_unitario,updated_at&ativo=eq.true&order=descricao.asc&limit=1000`,
+        `${SUPABASE_URL}/rest/v1/omie_produtos?select=codigo_produto,codigo,descricao,unidade,estoque_atual,valor_unitario,updated_at&ativo=eq.true&codigo=ilike.VP*&codigo=not.ilike.VPCON*&codigo=not.ilike.VPIN*&order=descricao.asc&limit=1000`,
         {
             headers: {
                 'apikey': SUPABASE_ANON,
@@ -21,10 +33,7 @@ async function fetchProdutos() {
 async function triggerSync(token) {
     const resp = await fetch('/api/produtos-vp/sync', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        }
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
     });
     return resp.json();
 }
@@ -36,7 +45,116 @@ function SortIcon({ col, sort }) {
         : <ChevronDown className="inline h-3.5 w-3.5 ml-0.5 text-primary" />;
 }
 
-export default function ProdutosVPPage() {
+// ── Gate: painel de validação do Pedido de Venda ─────────────────────────────
+function PedidoVendaGate({ pedidoVenda, setPedidoVenda, filial }) {
+    const [inputNumero, setInputNumero] = useState(pedidoVenda.numero || '');
+    const [verificando, setVerificando] = useState(false);
+    const [erro, setErro] = useState('');
+
+    const handleVerificar = async () => {
+        const num = inputNumero.trim();
+        if (!num) { setErro('Informe o número do pedido.'); return; }
+        if (!filial?.id) { setErro('Selecione uma filial antes.'); return; }
+
+        setVerificando(true);
+        setErro('');
+        try {
+            const token = localStorage.getItem('token');
+            const resp = await fetch(
+                `/api/omie/pedido-venda?numero=${encodeURIComponent(num)}&unidade=${filial.id}`,
+                { headers: { 'Authorization': `Bearer ${token}` } }
+            );
+            const data = await resp.json();
+            if (!resp.ok) {
+                setErro(data.error || 'Pedido não encontrado.');
+                setPedidoVenda({ numero: '', vendedor: '', validado: false });
+                return;
+            }
+            setPedidoVenda({ numero: data.numero, vendedor: data.vendedor, validado: true });
+        } catch (e) {
+            setErro('Erro de conexão ao verificar pedido.');
+            setPedidoVenda({ numero: '', vendedor: '', validado: false });
+        } finally {
+            setVerificando(false);
+        }
+    };
+
+    const handleReset = () => {
+        setInputNumero('');
+        setErro('');
+        setPedidoVenda({ numero: '', vendedor: '', validado: false });
+    };
+
+    // ── Estado: pedido já validado ────────────────────────────────────────────
+    if (pedidoVenda.validado) {
+        return (
+            <div className="flex items-center justify-between rounded-xl border border-green-200 bg-green-50 px-4 py-3">
+                <div className="flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 shrink-0 text-green-600" />
+                    <div>
+                        <p className="text-sm font-bold text-green-800">
+                            Pedido <span className="font-mono">{pedidoVenda.numero}</span> confirmado
+                            {pedidoVenda.vendedor ? ` — Vendedor: ${pedidoVenda.vendedor}` : ''}
+                        </p>
+                        <p className="text-xs text-green-600">
+                            Carrinho liberado · Filial: Escamax {filial?.label}
+                        </p>
+                    </div>
+                </div>
+                <button
+                    onClick={handleReset}
+                    className="ml-4 shrink-0 text-xs font-semibold text-green-700 underline hover:text-green-900"
+                >
+                    Trocar pedido
+                </button>
+            </div>
+        );
+    }
+
+    // ── Estado: aguardando validação ─────────────────────────────────────────
+    return (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-3">
+            <div className="flex items-center gap-2">
+                <Lock className="h-4 w-4 text-amber-600 shrink-0" />
+                <p className="text-sm font-bold text-amber-800">
+                    Informe o Pedido de Venda para liberar o carrinho
+                </p>
+            </div>
+            <p className="text-xs text-amber-700">
+                Todos os pedidos da filial <strong>Escamax {filial?.label}</strong> precisam estar
+                vinculados a um Pedido de Venda existente no Omie desta filial.
+            </p>
+            <div className="flex gap-2">
+                <input
+                    type="text"
+                    placeholder="Ex.: 29088"
+                    value={inputNumero}
+                    onChange={e => { setInputNumero(e.target.value); setErro(''); }}
+                    onKeyDown={e => e.key === 'Enter' && handleVerificar()}
+                    className="flex-1 rounded-lg border border-amber-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                />
+                <button
+                    onClick={handleVerificar}
+                    disabled={verificando || !inputNumero.trim()}
+                    className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-black transition hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                    {verificando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Tag className="h-4 w-4" />}
+                    {verificando ? 'Verificando...' : 'Verificar no Omie'}
+                </button>
+            </div>
+            {erro && (
+                <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2">
+                    <XCircle className="h-4 w-4 shrink-0 text-red-500" />
+                    <p className="text-xs font-medium text-red-700">{erro}</p>
+                </div>
+            )}
+        </div>
+    );
+}
+
+// ── Página principal ──────────────────────────────────────────────────────────
+export default function ProdutosVPPage({ cart = [], addToCart, pedidoVenda, setPedidoVenda, onOpenCart }) {
+    const { filial } = useAuth();
     const [produtos, setProdutos]   = useState([]);
     const [loading, setLoading]     = useState(true);
     const [syncing, setSyncing]     = useState(false);
@@ -45,15 +163,17 @@ export default function ProdutosVPPage() {
     const [syncMsg, setSyncMsg]     = useState(null);
     const [sort, setSort]           = useState({ col: 'descricao', asc: true });
     const [lastUpdate, setLastUpdate] = useState(null);
+    const [addedCodes, setAddedCodes] = useState(new Set());
 
     const load = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
             const data = await fetchProdutos();
-            setProdutos(data);
-            if (data.length > 0) {
-                const latest = data.reduce((a, b) =>
+            const produtosVP = data.filter(getCodigoVP);
+            setProdutos(produtosVP);
+            if (produtosVP.length > 0) {
+                const latest = produtosVP.reduce((a, b) =>
                     new Date(a.updated_at) > new Date(b.updated_at) ? a : b
                 );
                 setLastUpdate(new Date(latest.updated_at));
@@ -85,13 +205,37 @@ export default function ProdutosVPPage() {
         }
     };
 
+    const handleAddToCart = (produto) => {
+        if (!pedidoVenda?.validado || !addToCart) return;
+        const codigoSku = getCodigoVP(produto);
+        if (!codigoSku) return;
+
+        addToCart({
+            codigo: codigoSku,
+            descricao: produto.descricao,
+            unidade: produto.unidade,
+            preco: produto.valor_unitario,
+            preco_original: produto.valor_unitario,
+            estoque: produto.estoque_atual,
+        });
+        // Feedback visual breve
+        setAddedCodes(prev => new Set([...prev, produto.codigo_produto]));
+        setTimeout(() => {
+            setAddedCodes(prev => {
+                const next = new Set(prev);
+                next.delete(produto.codigo_produto);
+                return next;
+            });
+        }, 1200);
+    };
+
     const toggleSort = (col) => {
         setSort(s => s.col === col ? { col, asc: !s.asc } : { col, asc: true });
     };
 
     const filtered = produtos.filter(p =>
         p.descricao?.toLowerCase().includes(search.toLowerCase()) ||
-        p.codigo_produto?.toLowerCase().includes(search.toLowerCase())
+        getCodigoVP(p).toLowerCase().includes(search.toLowerCase())
     );
 
     const sorted = [...filtered].sort((a, b) => {
@@ -104,6 +248,7 @@ export default function ProdutosVPPage() {
     });
 
     const estoqueZero = sorted.filter(p => p.estoque_atual <= 0).length;
+    const totalNoCarrinho = cart.reduce((s, i) => s + i.quantity, 0);
 
     return (
         <div className="space-y-5">
@@ -120,15 +265,33 @@ export default function ProdutosVPPage() {
                         </p>
                     )}
                 </div>
-                <button
-                    onClick={handleSync}
-                    disabled={syncing}
-                    className="inline-flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 shadow-card transition hover:border-primary hover:text-primary disabled:opacity-50"
-                >
-                    <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
-                    {syncing ? 'Sincronizando...' : 'Sincronizar Agora'}
-                </button>
+                <div className="flex items-center gap-2">
+                    {totalNoCarrinho > 0 && (
+                        <button
+                            onClick={onOpenCart}
+                            className="inline-flex items-center gap-2 rounded-xl border border-primary bg-primary/10 px-4 py-2 text-sm font-bold text-primary-dark shadow-card transition hover:bg-primary/20"
+                        >
+                            <ShoppingCart className="h-4 w-4" />
+                            Ver Carrinho ({totalNoCarrinho})
+                        </button>
+                    )}
+                    <button
+                        onClick={handleSync}
+                        disabled={syncing}
+                        className="inline-flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 shadow-card transition hover:border-primary hover:text-primary disabled:opacity-50"
+                    >
+                        <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
+                        {syncing ? 'Sincronizando...' : 'Sincronizar Agora'}
+                    </button>
+                </div>
             </div>
+
+            {/* Gate de pedido de venda */}
+            <PedidoVendaGate
+                pedidoVenda={pedidoVenda}
+                setPedidoVenda={setPedidoVenda}
+                filial={filial}
+            />
 
             {/* Sync feedback */}
             {syncMsg && (
@@ -198,7 +361,7 @@ export default function ProdutosVPPage() {
                             <thead>
                                 <tr className="border-b border-neutral-100 bg-neutral-50 text-xs font-semibold uppercase tracking-wide text-neutral-500">
                                     {[
-                                        { key: 'codigo_produto', label: 'Código' },
+                                        { key: 'codigo', label: 'Código VP' },
                                         { key: 'descricao',      label: 'Descrição' },
                                         { key: 'unidade',        label: 'Un.' },
                                         { key: 'estoque_atual',  label: 'Estoque' },
@@ -212,32 +375,80 @@ export default function ProdutosVPPage() {
                                             {label}<SortIcon col={key} sort={sort} />
                                         </th>
                                     ))}
+                                    <th className="px-4 py-3 text-right">
+                                        {pedidoVenda?.validado
+                                            ? 'Adicionar'
+                                            : <Lock className="inline h-3.5 w-3.5 text-neutral-400" />
+                                        }
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-neutral-50">
-                                {sorted.map((p) => (
-                                    <tr key={p.codigo_produto} className="hover:bg-neutral-50 transition-colors">
-                                        <td className="px-4 py-3 font-mono text-xs text-neutral-500">
-                                            {p.codigo_produto}
-                                        </td>
-                                        <td className="px-4 py-3 font-medium text-neutral-800">
-                                            {p.descricao}
-                                        </td>
-                                        <td className="px-4 py-3 text-neutral-500">{p.unidade}</td>
-                                        <td className="px-4 py-3">
-                                            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
-                                                p.estoque_atual > 0
-                                                    ? 'bg-green-50 text-green-700'
-                                                    : 'bg-red-50 text-red-600'
-                                            }`}>
-                                                {Number(p.estoque_atual).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 3 })}
-                                            </span>
-                                        </td>
-                                        <td className="px-4 py-3 text-neutral-700">
-                                            {Number(p.valor_unitario).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                                        </td>
-                                    </tr>
-                                ))}
+                                {sorted.map((p) => {
+                                    const codigoSku = getCodigoVP(p);
+                                    const jaAdicionado = addedCodes.has(p.codigo_produto);
+                                    const qtdNoCarrinho = cart.find(i => i.codigo === codigoSku)?.quantity || 0;
+                                    const podeAdicionar = pedidoVenda?.validado && codigoSku;
+
+                                    return (
+                                        <tr key={p.codigo_produto} className="hover:bg-neutral-50 transition-colors">
+                                            <td className="px-4 py-3 font-mono text-xs text-neutral-500">
+                                                {codigoSku}
+                                            </td>
+                                            <td className="px-4 py-3 font-medium text-neutral-800">
+                                                {p.descricao}
+                                            </td>
+                                            <td className="px-4 py-3 text-neutral-500">{p.unidade}</td>
+                                            <td className="px-4 py-3">
+                                                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
+                                                    p.estoque_atual > 0
+                                                        ? 'bg-green-50 text-green-700'
+                                                        : 'bg-red-50 text-red-600'
+                                                }`}>
+                                                    {Number(p.estoque_atual).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 3 })}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3 text-neutral-700">
+                                                {Number(p.valor_unitario).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                            </td>
+                                            <td className="px-4 py-3 text-right">
+                                                {podeAdicionar ? (
+                                                    <button
+                                                        onClick={() => handleAddToCart(p)}
+                                                        title="Adicionar ao carrinho"
+                                                        className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold transition-all active:scale-95 ${
+                                                            jaAdicionado
+                                                                ? 'bg-green-100 text-green-700'
+                                                                : qtdNoCarrinho > 0
+                                                                    ? 'bg-primary/20 text-primary-dark hover:bg-primary/30'
+                                                                    : 'bg-primary text-black hover:bg-primary-light'
+                                                        }`}
+                                                    >
+                                                        {jaAdicionado ? (
+                                                            <CheckCircle2 className="h-3.5 w-3.5" />
+                                                        ) : (
+                                                            <Plus className="h-3.5 w-3.5" />
+                                                        )}
+                                                        {jaAdicionado
+                                                            ? 'Adicionado!'
+                                                            : qtdNoCarrinho > 0
+                                                                ? `+1 (${qtdNoCarrinho})`
+                                                                : 'Adicionar'
+                                                        }
+                                                    </button>
+                                                ) : (
+                                                    <span
+                                                        title="Informe o pedido de venda para liberar"
+                                                        className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold text-neutral-300 cursor-not-allowed"
+                                                    >
+                                                        <Lock className="h-3.5 w-3.5" />
+                                                        Bloqueado
+                                                    </span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                         <div className="border-t border-neutral-100 px-4 py-2.5 text-xs text-neutral-400">

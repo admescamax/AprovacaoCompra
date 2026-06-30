@@ -30,7 +30,7 @@ function saveOrder(entry) {
 
 exports.processar = async (req, res) => {
     logger.info(`API: Recebida requisição de checkout: ${JSON.stringify(req.body)}`);
-    const { unidade, itens, finalidade, tipoFrete, prioridade, pagamento, enderecoEntrega, transportadora } = req.body;
+    const { unidade, itens, finalidade, tipoFrete, prioridade, pagamento, enderecoEntrega, transportadora, pedidoVendaRef } = req.body;
 
     if (!unidade || !itens || itens.length === 0) {
         return res.status(400).json({ error: 'Unidade e itens são obrigatórios' });
@@ -56,6 +56,7 @@ exports.processar = async (req, res) => {
     }
 
     const observacoes = [
+        pedidoVendaRef ? `Ref. Pedido de Venda Escamax: ${pedidoVendaRef}` : null,
         finalidade ? `Finalidade: ${finalidade}` : null,
         prioridade ? `Prioridade: ${prioridade}` : null,
         freteDesc || null,
@@ -66,6 +67,7 @@ exports.processar = async (req, res) => {
         id: `ESC-${Date.now()}`,
         criadoEm: new Date().toISOString(),
         unidade,
+        pedidoVendaRef: pedidoVendaRef || null,
         itens,
         finalidade: finalidade || null,
         tipoFrete: tipoFrete || '9',
