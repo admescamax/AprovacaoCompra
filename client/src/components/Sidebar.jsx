@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Package, LogOut, BarChart2, PackageX, Boxes, MapPin, ChevronsUpDown } from 'lucide-react';
+import { Search, Package, LogOut, BarChart2, PackageX, Boxes, MapPin, ChevronsUpDown, Store, ClipboardCheck } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -11,6 +11,8 @@ function contarDemandas() {
 const NAV = [
     { to: '/', icon: Search, label: 'Consultar Peças' },
     { to: '/produtos-vp', icon: Boxes, label: 'Produtos VerticalParts' },
+    { to: '/outros-fornecedores', icon: Store, label: 'Outros Fornecedores' },
+    { to: '/aprovacoes', icon: ClipboardCheck, label: 'Aprovações' },
     { to: '/history', icon: Package, label: 'Histórico de Pedidos' },
     { to: '/sem-estoque', icon: PackageX, label: 'Peças Sem Estoque', badge: true },
     { to: '/dashboard', icon: BarChart2, label: 'Dashboard' },

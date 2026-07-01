@@ -45,35 +45,55 @@ function SortIcon({ col, sort }) {
         : <ChevronDown className="inline h-3.5 w-3.5 ml-0.5 text-primary" />;
 }
 
-// ── Gate: painel de validação do Pedido de Venda ─────────────────────────────
-function PedidoVendaGate({ pedidoVenda, setPedidoVenda, filial }) {
-    const [inputNumero, setInputNumero] = useState(pedidoVenda.numero || '');
+// ── Gate: painel de validação do carrinho ────────────────────────────────────
+function ValidacaoCarrinhoGate({ validacaoCarrinho, setValidacaoCarrinho, filial, finalidade, setFinalidade }) {
+    const tipoValidacao = finalidade === 'Atendimento a Contrato' ? 'contrato' : 'pedido-venda';
+    const isContrato = tipoValidacao === 'contrato';
+    const [inputNumero, setInputNumero] = useState(validacaoCarrinho.numero || '');
     const [verificando, setVerificando] = useState(false);
     const [erro, setErro] = useState('');
 
+    useEffect(() => {
+        setInputNumero('');
+        setErro('');
+    }, [tipoValidacao, filial?.id]);
+
     const handleVerificar = async () => {
         const num = inputNumero.trim();
-        if (!num) { setErro('Informe o número do pedido.'); return; }
+        if (!num) {
+            setErro(isContrato ? 'Informe o número do contrato.' : 'Informe o número do pedido.');
+            return;
+        }
         if (!filial?.id) { setErro('Selecione uma filial antes.'); return; }
 
         setVerificando(true);
         setErro('');
         try {
             const token = localStorage.getItem('token');
+            const endpoint = isContrato ? 'contrato' : 'pedido-venda';
             const resp = await fetch(
-                `/api/omie/pedido-venda?numero=${encodeURIComponent(num)}&unidade=${filial.id}`,
+                `/api/omie/${endpoint}?numero=${encodeURIComponent(num)}&unidade=${filial.id}`,
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
             const data = await resp.json();
             if (!resp.ok) {
-                setErro(data.error || 'Pedido não encontrado.');
-                setPedidoVenda({ numero: '', vendedor: '', validado: false });
+                setErro(data.error || (isContrato ? 'Contrato não encontrado ou sem tag válida.' : 'Pedido não encontrado.'));
+                setValidacaoCarrinho({ tipo: '', numero: '', validado: false });
                 return;
             }
-            setPedidoVenda({ numero: data.numero, vendedor: data.vendedor, validado: true });
+            setValidacaoCarrinho({
+                tipo: tipoValidacao,
+                numero: data.numero,
+                vendedor: data.vendedor || '',
+                valorTotal: Number(data.valorTotal || 0),
+                limiteCompra70: Number(data.limiteCompra70 || 0),
+                tagValida: data.tagValida || '',
+                tags: data.tags || [],
+                validado: true,
+            });
         } catch (e) {
-            setErro('Erro de conexão ao verificar pedido.');
-            setPedidoVenda({ numero: '', vendedor: '', validado: false });
+            setErro(isContrato ? 'Erro de conexão ao verificar contrato.' : 'Erro de conexão ao verificar pedido.');
+            setValidacaoCarrinho({ tipo: '', numero: '', validado: false });
         } finally {
             setVerificando(false);
         }
@@ -82,30 +102,37 @@ function PedidoVendaGate({ pedidoVenda, setPedidoVenda, filial }) {
     const handleReset = () => {
         setInputNumero('');
         setErro('');
-        setPedidoVenda({ numero: '', vendedor: '', validado: false });
+        setValidacaoCarrinho({ tipo: '', numero: '', validado: false });
     };
 
     // ── Estado: pedido já validado ────────────────────────────────────────────
-    if (pedidoVenda.validado) {
+    if (validacaoCarrinho.validado && validacaoCarrinho.tipo === tipoValidacao) {
         return (
             <div className="flex items-center justify-between rounded-xl border border-green-200 bg-green-50 px-4 py-3">
                 <div className="flex items-center gap-3">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-green-600" />
                     <div>
                         <p className="text-sm font-bold text-green-800">
-                            Pedido <span className="font-mono">{pedidoVenda.numero}</span> confirmado
-                            {pedidoVenda.vendedor ? ` — Vendedor: ${pedidoVenda.vendedor}` : ''}
+                            {isContrato ? 'Contrato' : 'Pedido'} <span className="font-mono">{validacaoCarrinho.numero}</span> confirmado
+                            {!isContrato && validacaoCarrinho.vendedor ? ` — Vendedor: ${validacaoCarrinho.vendedor}` : ''}
+                            {isContrato && validacaoCarrinho.tagValida ? ` — Tag: ${validacaoCarrinho.tagValida}` : ''}
                         </p>
                         <p className="text-xs text-green-600">
                             Carrinho liberado · Filial: Escamax {filial?.label}
                         </p>
+                        {!isContrato && validacaoCarrinho.valorTotal > 0 && (
+                            <p className="text-xs text-green-700">
+                                Proposta: {validacaoCarrinho.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                {' · '}Limite 70%: {validacaoCarrinho.limiteCompra70.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                            </p>
+                        )}
                     </div>
                 </div>
                 <button
                     onClick={handleReset}
                     className="ml-4 shrink-0 text-xs font-semibold text-green-700 underline hover:text-green-900"
                 >
-                    Trocar pedido
+                    Trocar {isContrato ? 'contrato' : 'pedido'}
                 </button>
             </div>
         );
@@ -114,20 +141,51 @@ function PedidoVendaGate({ pedidoVenda, setPedidoVenda, filial }) {
     // ── Estado: aguardando validação ─────────────────────────────────────────
     return (
         <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+                {[
+                    { value: 'Revenda', label: 'Revenda' },
+                    { value: 'Atendimento a Contrato', label: 'Atendimento a Contrato' },
+                ].map(option => (
+                    <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setFinalidade(option.value)}
+                        className={`rounded-lg border px-3 py-2 text-xs font-bold transition-colors ${
+                            finalidade === option.value
+                                ? 'border-primary bg-primary/20 text-black'
+                                : 'border-amber-200 bg-white text-amber-700 hover:border-primary'
+                        }`}
+                    >
+                        {option.label}
+                    </button>
+                ))}
+            </div>
             <div className="flex items-center gap-2">
                 <Lock className="h-4 w-4 text-amber-600 shrink-0" />
                 <p className="text-sm font-bold text-amber-800">
-                    Informe o Pedido de Venda para liberar o carrinho
+                    {isContrato
+                        ? 'Informe o Contrato para liberar o carrinho'
+                        : 'Informe o Pedido de Venda para liberar o carrinho'
+                    }
                 </p>
             </div>
             <p className="text-xs text-amber-700">
-                Todos os pedidos da filial <strong>Escamax {filial?.label}</strong> precisam estar
-                vinculados a um Pedido de Venda existente no Omie desta filial.
+                {isContrato ? (
+                    <>
+                        Atendimentos a contrato da filial <strong>Escamax {filial?.label}</strong> precisam estar vinculados
+                        a um contrato existente com tag <strong>Contrato com peças</strong> ou <strong>Contrato Parcial com Peças</strong>.
+                    </>
+                ) : (
+                    <>
+                        Revendas da filial <strong>Escamax {filial?.label}</strong> precisam estar vinculadas
+                        a um Pedido de Venda existente no Omie desta filial.
+                    </>
+                )}
             </p>
             <div className="flex gap-2">
                 <input
                     type="text"
-                    placeholder="Ex.: 29088"
+                    placeholder={isContrato ? 'Ex.: 2025/00123' : 'Ex.: 29088'}
                     value={inputNumero}
                     onChange={e => { setInputNumero(e.target.value); setErro(''); }}
                     onKeyDown={e => e.key === 'Enter' && handleVerificar()}
@@ -139,7 +197,7 @@ function PedidoVendaGate({ pedidoVenda, setPedidoVenda, filial }) {
                     className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-black transition hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     {verificando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Tag className="h-4 w-4" />}
-                    {verificando ? 'Verificando...' : 'Verificar no Omie'}
+                    {verificando ? 'Verificando...' : `Verificar ${isContrato ? 'Contrato' : 'Pedido'} no Omie`}
                 </button>
             </div>
             {erro && (
@@ -153,7 +211,7 @@ function PedidoVendaGate({ pedidoVenda, setPedidoVenda, filial }) {
 }
 
 // ── Página principal ──────────────────────────────────────────────────────────
-export default function ProdutosVPPage({ cart = [], addToCart, pedidoVenda, setPedidoVenda, onOpenCart }) {
+export default function ProdutosVPPage({ cart = [], addToCart, finalidade, setFinalidade, validacaoCarrinho, setValidacaoCarrinho, onOpenCart }) {
     const { filial } = useAuth();
     const [produtos, setProdutos]   = useState([]);
     const [loading, setLoading]     = useState(true);
@@ -206,7 +264,7 @@ export default function ProdutosVPPage({ cart = [], addToCart, pedidoVenda, setP
     };
 
     const handleAddToCart = (produto) => {
-        if (!pedidoVenda?.validado || !addToCart) return;
+        if (!validacaoCarrinho?.validado || !addToCart) return;
         const codigoSku = getCodigoVP(produto);
         if (!codigoSku) return;
 
@@ -287,10 +345,12 @@ export default function ProdutosVPPage({ cart = [], addToCart, pedidoVenda, setP
             </div>
 
             {/* Gate de pedido de venda */}
-            <PedidoVendaGate
-                pedidoVenda={pedidoVenda}
-                setPedidoVenda={setPedidoVenda}
+            <ValidacaoCarrinhoGate
+                validacaoCarrinho={validacaoCarrinho}
+                setValidacaoCarrinho={setValidacaoCarrinho}
                 filial={filial}
+                finalidade={finalidade}
+                setFinalidade={setFinalidade}
             />
 
             {/* Sync feedback */}
@@ -376,7 +436,7 @@ export default function ProdutosVPPage({ cart = [], addToCart, pedidoVenda, setP
                                         </th>
                                     ))}
                                     <th className="px-4 py-3 text-right">
-                                        {pedidoVenda?.validado
+                                        {validacaoCarrinho?.validado
                                             ? 'Adicionar'
                                             : <Lock className="inline h-3.5 w-3.5 text-neutral-400" />
                                         }
@@ -388,7 +448,7 @@ export default function ProdutosVPPage({ cart = [], addToCart, pedidoVenda, setP
                                     const codigoSku = getCodigoVP(p);
                                     const jaAdicionado = addedCodes.has(p.codigo_produto);
                                     const qtdNoCarrinho = cart.find(i => i.codigo === codigoSku)?.quantity || 0;
-                                    const podeAdicionar = pedidoVenda?.validado && codigoSku;
+                                    const podeAdicionar = validacaoCarrinho?.validado && codigoSku;
 
                                     return (
                                         <tr key={p.codigo_produto} className="hover:bg-neutral-50 transition-colors">

@@ -9,12 +9,16 @@ import HistoryPage from './pages/HistoryPage';
 import DashboardPage from './pages/DashboardPage';
 import PecasSemEstoquePage from './pages/PecasSemEstoquePage';
 import ProdutosVPPage from './pages/ProdutosVPPage';
+import OutrosFornecedoresPage from './pages/OutrosFornecedoresPage';
+import AprovacoesPage from './pages/AprovacoesPage';
 import CartSidebar from './components/CartSidebar';
 import Sidebar from './components/Sidebar';
 
 const PAGE_TITLES = {
     '/': 'Consultar Peças',
     '/produtos-vp': 'Produtos VerticalParts',
+    '/outros-fornecedores': 'Outros Fornecedores',
+    '/aprovacoes': 'Alçadas de Aprovação',
     '/history': 'Histórico de Pedidos',
     '/sem-estoque': 'Peças Sem Estoque',
     '/dashboard': 'Dashboard',
@@ -34,7 +38,7 @@ function AuthRoute({ children }) {
     return children;
 }
 
-function Layout({ children, cart, updateQuantity, removeFromItem, clearCart, cartOpen, setCartOpen, pedidoVenda }) {
+function Layout({ children, cart, updateQuantity, removeFromItem, clearCart, cartOpen, setCartOpen, validacaoCarrinho, finalidade, setFinalidade }) {
     const { logout } = useAuth();
     const location = useLocation();
     const title = PAGE_TITLES[location.pathname] || 'Portal Escamax';
@@ -75,7 +79,9 @@ function Layout({ children, cart, updateQuantity, removeFromItem, clearCart, car
                 updateQuantity={updateQuantity}
                 removeFromItem={removeFromItem}
                 clearCart={clearCart}
-                pedidoVendaRef={pedidoVenda.validado ? pedidoVenda.numero : null}
+                validacaoRef={validacaoCarrinho.validado ? validacaoCarrinho : null}
+                finalidade={finalidade}
+                setFinalidade={setFinalidade}
             />
         </div>
     );
@@ -88,26 +94,33 @@ export default function App() {
     const [cart, setCart] = useState([]);
     const [cartOpen, setCartOpen] = useState(false);
 
-    // ── Estado do pedido de venda (gate) ─────────────────────────────────────
-    const [pedidoVenda, setPedidoVenda] = useState({ numero: '', vendedor: '', validado: false });
+    const [finalidade, setFinalidade] = useState('Revenda');
+    const [validacaoCarrinho, setValidacaoCarrinho] = useState({ tipo: '', numero: '', validado: false });
 
     // Reseta pedido e carrinho ao trocar de filial
     useEffect(() => {
         setCart([]);
-        setPedidoVenda({ numero: '', vendedor: '', validado: false });
+        setFinalidade('Revenda');
+        setValidacaoCarrinho({ tipo: '', numero: '', validado: false });
     }, [filial?.id]);
 
+    useEffect(() => {
+        setCart([]);
+        setValidacaoCarrinho({ tipo: '', numero: '', validado: false });
+    }, [finalidade]);
+
     const addToCart = useCallback((produto) => {
+        const quantidade = Number(produto.quantity || 1);
         setCart(prev => {
             const existe = prev.find(i => i.codigo === produto.codigo);
             if (existe) {
                 return prev.map(i =>
                     i.codigo === produto.codigo
-                        ? { ...i, quantity: i.quantity + 1 }
+                        ? { ...i, quantity: i.quantity + quantidade }
                         : i
                 );
             }
-            return [...prev, { ...produto, quantity: 1 }];
+            return [...prev, { ...produto, quantity: quantidade }];
         });
     }, []);
 
@@ -125,7 +138,17 @@ export default function App() {
 
     const clearCart = useCallback(() => setCart([]), []);
 
-    const layoutProps = { cart, updateQuantity, removeFromItem, clearCart, cartOpen, setCartOpen, pedidoVenda };
+    const layoutProps = {
+        cart,
+        updateQuantity,
+        removeFromItem,
+        clearCart,
+        cartOpen,
+        setCartOpen,
+        validacaoCarrinho,
+        finalidade,
+        setFinalidade,
+    };
 
     return (
         <Routes>
@@ -156,8 +179,10 @@ export default function App() {
                             <ProdutosVPPage
                                 cart={cart}
                                 addToCart={addToCart}
-                                pedidoVenda={pedidoVenda}
-                                setPedidoVenda={setPedidoVenda}
+                                finalidade={finalidade}
+                                setFinalidade={setFinalidade}
+                                validacaoCarrinho={validacaoCarrinho}
+                                setValidacaoCarrinho={setValidacaoCarrinho}
                                 onOpenCart={() => setCartOpen(true)}
                             />
                         </Layout>
@@ -169,6 +194,31 @@ export default function App() {
                 element={
                     <ProtectedRoute>
                         <Layout {...layoutProps}><HistoryPage /></Layout>
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/aprovacoes"
+                element={
+                    <ProtectedRoute>
+                        <Layout {...layoutProps}><AprovacoesPage /></Layout>
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/outros-fornecedores"
+                element={
+                    <ProtectedRoute>
+                        <Layout {...layoutProps}>
+                            <OutrosFornecedoresPage
+                                addToCart={addToCart}
+                                finalidade={finalidade}
+                                setFinalidade={setFinalidade}
+                                validacaoCarrinho={validacaoCarrinho}
+                                setValidacaoCarrinho={setValidacaoCarrinho}
+                                onOpenCart={() => setCartOpen(true)}
+                            />
+                        </Layout>
                     </ProtectedRoute>
                 }
             />

@@ -1,18 +1,39 @@
 const express = require('express');
 const router = express.Router();
-const fs = require('fs');
-const path = require('path');
 const authMiddleware = require('../middleware/authMiddleware');
+const omieClient = require('../services/omieClient');
+const { ORDERS_FILE, readOrders, updateOrder } = require('../services/orderStore');
+const { validarPlanoPagamentoSalvo } = require('../services/paymentPlan');
+const { etapaVendaProdutoVP, registrarSincronizacaoEtapa, registrarErroSincronizacaoEtapa } = require('../services/omieStages');
+const { montarAuditoriaOmie, montarAuditoriaErro } = require('../services/omieAudit');
+const {
+    criarFluxoAprovacaoProdutos,
+    registrarDecisao,
+    confirmarEntrega,
+    obterPermissoesAprovacao,
+    validarAprovador,
+    validarFaturamento,
+} = require('../services/approvalEngine');
 
-const ORDERS_FILE = path.resolve(__dirname, '../data/orders.json');
+function calcularValorPedido(order) {
+    return (order.itens || []).reduce((acc, item) => {
+        return acc + (Number(item.quantidade || 0) * Number(item.preco_unitario || item.preco || 0));
+    }, 0);
+}
 
-function readOrders() {
-    try {
-        const raw = fs.readFileSync(ORDERS_FILE, 'utf8');
-        return JSON.parse(raw || '[]');
-    } catch {
-        return [];
-    }
+function ensureAprovacao(order) {
+    if (order.aprovacao) return order.aprovacao;
+    return criarFluxoAprovacaoProdutos({
+        valorTotal: calcularValorPedido(order),
+        origem: 'historico',
+    });
+}
+
+function withAprovacao(order) {
+    return {
+        ...order,
+        aprovacao: ensureAprovacao(order),
+    };
 }
 
 // GET /api/orders/stats — agregação por mês (sem filtro de data)
@@ -75,9 +96,221 @@ router.get('/', authMiddleware, (req, res) => {
         // Mais recentes primeiro
         orders.sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm));
 
-        res.json(orders);
+        res.json(orders.map(withAprovacao));
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+});
+
+router.get('/aprovacoes/permissoes', authMiddleware, (req, res) => {
+    try {
+        res.json(obterPermissoesAprovacao(req.user?.email));
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.get('/:id/aprovacao', authMiddleware, (req, res) => {
+    try {
+        const orders = readOrders();
+        const order = orders.find(item => item.id === req.params.id);
+        if (!order) return res.status(404).json({ error: 'Pedido não encontrado.' });
+
+        const aprovacao = ensureAprovacao(order);
+        res.json({ id: order.id, pedido_compra: order.pedido_compra, pedido_venda: order.pedido_venda, aprovacao });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.post('/:id/auditoria-omie', authMiddleware, async (req, res) => {
+    try {
+        const orders = readOrders();
+        const order = orders.find(item => item.id === req.params.id);
+        if (!order) return res.status(404).json({ error: 'Pedido não encontrado.' });
+
+        if (order.pedido_compra?.status !== 'ok' || order.pedido_venda?.status !== 'ok') {
+            return res.status(409).json({
+                error: 'Auditoria Omie bloqueada: compra e venda precisam estar criadas com sucesso.',
+            });
+        }
+
+        if (!order.planoPagamento) {
+            return res.status(409).json({
+                error: 'Auditoria Omie bloqueada: pedido sem plano de pagamento salvo.',
+            });
+        }
+
+        try {
+            const [consultaCompra, consultaVenda] = await Promise.all([
+                omieClient.consultarPedidoCompra({
+                    unidade: order.unidade,
+                    numero: order.pedido_compra.numero,
+                    codigo: order.pedido_compra.codigo,
+                    codigoIntegracao: order.pedido_compra.codigo_integracao,
+                }),
+                omieClient.consultarPedidoVendaVP({
+                    codigoPedido: order.pedido_venda.codigo,
+                    codigoPedidoIntegracao: order.pedido_venda.codigo_integracao,
+                }),
+            ]);
+            const auditoria = montarAuditoriaOmie({ order, consultaCompra, consultaVenda });
+            const updated = updateOrder(req.params.id, current => ({
+                ...current,
+                auditoria_omie: auditoria,
+            }));
+            return res.json({ id: updated.id, auditoria_omie: updated.auditoria_omie });
+        } catch (error) {
+            const auditoria = montarAuditoriaErro(error);
+            const updated = updateOrder(req.params.id, current => ({
+                ...current,
+                auditoria_omie: auditoria,
+            }));
+            return res.status(202).json({ id: updated.id, auditoria_omie: updated.auditoria_omie });
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.post('/:id/aprovacao/decisao', authMiddleware, async (req, res) => {
+    try {
+        const { nivel, decisao, motivo } = req.body;
+        const usuario = req.user?.email || 'sistema';
+        validarAprovador(usuario, nivel);
+
+        let aprovouFluxo = false;
+        const updated = updateOrder(req.params.id, order => {
+            const aprovacao = ensureAprovacao(order);
+            order.aprovacao = registrarDecisao(aprovacao, { nivel, decisao, usuario, motivo });
+            aprovouFluxo = order.aprovacao.status === 'aprovado';
+            return order;
+        });
+
+        if (!updated) return res.status(404).json({ error: 'Pedido não encontrado.' });
+
+        if (!aprovouFluxo || updated.pedido_venda?.status !== 'ok') {
+            return res.json({ id: updated.id, aprovacao: updated.aprovacao });
+        }
+
+        const etapaOperacional = etapaVendaProdutoVP('SEPARAR_ESTOQUE');
+        let resultadoSync = { skipped: true, reason: 'Pedido VP já criado na etapa operacional de separação.' };
+
+        const codigoPedido = updated.pedido_venda?.codigo;
+        const codigoPedidoIntegracao = updated.pedido_venda?.codigo_integracao;
+        let syncStatus = 'ok';
+
+        if (updated.pedido_venda?.etapa !== etapaOperacional.codigo && (codigoPedido || codigoPedidoIntegracao)) {
+            try {
+                resultadoSync = await omieClient.trocarEtapaPedidoVendaVP({
+                    codigoPedido,
+                    codigoPedidoIntegracao,
+                    etapa: etapaOperacional.codigo,
+                });
+            } catch (error) {
+                syncStatus = 'erro';
+                const syncedError = updateOrder(req.params.id, current => registrarErroSincronizacaoEtapa(current, {
+                    origem: 'aprovacao.final',
+                    etapaLocal: current.aprovacao?.etapaAtual,
+                    etapaOmie: etapaOperacional,
+                    error,
+                }));
+                return res.status(202).json({
+                    id: syncedError.id,
+                    aprovacao: syncedError.aprovacao,
+                    pedido_venda: syncedError.pedido_venda,
+                    sync: {
+                        status: syncStatus,
+                        detalhe: syncedError.pedido_venda?.etapa_sync_detalhe,
+                    },
+                });
+            }
+        } else if (!codigoPedido && !codigoPedidoIntegracao) {
+            resultadoSync = { skipped: true, reason: 'Pedido VP sem código interno/integrado salvo para sincronizar etapa operacional.' };
+        }
+
+        const synced = updateOrder(req.params.id, current => registrarSincronizacaoEtapa(current, {
+            origem: 'aprovacao.final',
+            etapaLocal: current.aprovacao?.etapaAtual,
+            etapaOmie: etapaOperacional,
+            resultado: resultadoSync,
+        }));
+
+        res.json({ id: synced.id, aprovacao: synced.aprovacao, pedido_venda: synced.pedido_venda, sync: resultadoSync });
+    } catch (err) {
+        const status = /sem permissão/i.test(err.message || '') ? 403 : 400;
+        res.status(status).json({ error: err.message });
+    }
+});
+
+router.post('/:id/confirmar-entrega', authMiddleware, async (req, res) => {
+    try {
+        validarFaturamento(req.user?.email);
+
+        if (req.body?.confirmarFaturamento !== true) {
+            return res.status(400).json({
+                error: 'Confirmação obrigatória: marque explicitamente que a entrega foi conferida e que o pedido VP pode ir para Faturar.',
+            });
+        }
+
+        const orders = readOrders();
+        const order = orders.find(item => item.id === req.params.id);
+        if (!order) return res.status(404).json({ error: 'Pedido não encontrado.' });
+
+        const aprovacao = ensureAprovacao(order);
+        if (aprovacao.status !== 'aprovado') {
+            return res.status(409).json({
+                error: 'Entrega bloqueada: o pedido ainda não concluiu todas as alçadas de aprovação.',
+                aprovacao,
+            });
+        }
+
+        validarPlanoPagamentoSalvo(order.planoPagamento, calcularValorPedido(order));
+
+        const codigoPedido = order.pedido_venda?.codigo;
+        const codigoPedidoIntegracao = order.pedido_venda?.codigo_integracao;
+        if (!codigoPedido && !codigoPedidoIntegracao) {
+            return res.status(400).json({
+                error: 'Pedido de venda sem código interno/integrado da Omie para enviar à etapa Faturar.',
+            });
+        }
+
+        const omie = await omieClient.marcarPedidoVendaVPParaFaturar({
+            codigoPedido,
+            codigoPedidoIntegracao,
+        });
+        const etapaFaturar = etapaVendaProdutoVP('FATURAR');
+
+        const updated = updateOrder(req.params.id, current => {
+            current.aprovacao = confirmarEntrega(aprovacao);
+            current = registrarSincronizacaoEtapa(current, {
+                origem: 'produto.entregue',
+                etapaLocal: current.aprovacao.etapaAtual,
+                etapaOmie: etapaFaturar,
+                resultado: omie,
+            });
+            current.pedido_venda.faturar_em = new Date().toISOString();
+            current.financeiro = {
+                ...(current.financeiro || {}),
+                notificado: true,
+                notificadoEm: new Date().toISOString(),
+                mensagem: 'Pedido entregue. Faturamento solicitado automaticamente para a VerticalParts.',
+            };
+            return current;
+        });
+
+        res.json({ id: updated.id, pedido_venda: updated.pedido_venda, aprovacao: updated.aprovacao, omie });
+    } catch (err) {
+        const detail = err.response?.data?.faultstring || err.response?.data?.message || err.message;
+        const status = /sem permissão/i.test(detail)
+            ? 403
+            : /Faturamento bloqueado/i.test(detail)
+                ? 409
+                : 500;
+        res.status(status).json({
+            error: status === 500 ? 'Erro ao confirmar entrega e mover pedido VP para Faturar.' : detail,
+            detail,
+        });
     }
 });
 

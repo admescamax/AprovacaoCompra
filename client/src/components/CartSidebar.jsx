@@ -55,76 +55,159 @@ const labelCls = "text-[11px] font-bold text-neutral-500 uppercase tracking-[0.1
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
-export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, removeFromItem, clearCart, pedidoVendaRef }) {
+export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, removeFromItem, clearCart, validacaoRef, finalidade, setFinalidade }) {
     const { filial } = useAuth();
     const [isCheckingOut, setIsCheckingOut] = useState(false);
     const [checkoutStatus, setCheckoutStatus] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
+    const [finalidadeLocal, setFinalidadeLocal] = useState('Revenda');
+    const finalidadeAtual = finalidade || finalidadeLocal;
+    const setFinalidadeAtual = setFinalidade || setFinalidadeLocal;
 
-    // Novos campos
-    const [finalidade, setFinalidade] = useState('Revenda');
     const [tipoFrete, setTipoFrete] = useState('1'); // FOB padrão
     const [prioridade, setPrioridade] = useState('Normal');
     const [valorEntrada, setValorEntrada] = useState('');
     const [dataEntrada, setDataEntrada] = useState('');
-    const [parcelas, setParcelas] = useState('1');
+    const [parcelas, setParcelas] = useState('0');
 
     // Campos condicionais de frete
     const [enderecoEntrega, setEnderecoEntrega] = useState('');
     const [transportadoraRazao, setTransportadoraRazao] = useState('');
     const [transportadoraCnpj, setTransportadoraCnpj] = useState('');
+    const [preflight, setPreflight] = useState(null);
+    const [idempotencyKey, setIdempotencyKey] = useState(() => `checkout-${Date.now()}-${Math.random().toString(36).slice(2)}`);
 
     useEffect(() => {
         if (isOpen) {
             setCheckoutStatus(null);
             setErrorMessage('');
             setIsCheckingOut(false);
+            setPreflight(null);
+            setIdempotencyKey(`checkout-${Date.now()}-${Math.random().toString(36).slice(2)}`);
         }
     }, [isOpen]);
 
     const totalItems = cart.reduce((sum, item) => sum + (item.mmBased ? 1 : item.quantity), 0);
     const totalPrice = cart.reduce((sum, item) => sum + (item.preco * item.quantity), 0);
+    const limiteRevenda70 = validacaoRef?.tipo === 'pedido-venda' ? Number(validacaoRef.limiteCompra70 || 0) : 0;
+    const valorProposta = validacaoRef?.tipo === 'pedido-venda' ? Number(validacaoRef.valorTotal || 0) : 0;
+    const limiteRevendaExcedido = validacaoRef?.tipo === 'pedido-venda' && limiteRevenda70 > 0 && totalPrice > limiteRevenda70;
+    const valorEntradaNumber = parseFloat(valorEntrada) || 0;
+    const parcelasNumber = Number.parseInt(parcelas, 10);
+    const entradaMaiorQueTotal = valorEntradaNumber > totalPrice;
+    const entradaSemData = valorEntradaNumber > 0 && !dataEntrada;
 
     const formatarMoeda = (valor) =>
         new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor || 0);
 
     const today = new Date().toISOString().slice(0, 10);
 
+    const addDays = (date, days) => {
+        const next = new Date(date);
+        next.setDate(next.getDate() + days);
+        return next;
+    };
+
+    const parcelamentoPreview = (() => {
+        const total = Math.round((totalPrice + Number.EPSILON) * 100) / 100;
+        if (!total || entradaMaiorQueTotal || entradaSemData) return [];
+        const entrada = Math.round((valorEntradaNumber + Number.EPSILON) * 100) / 100;
+        const restante = Math.round((total - entrada + Number.EPSILON) * 100) / 100;
+        const result = [];
+        let numero = 1;
+        const baseDate = new Date();
+        if (entrada > 0) {
+            result.push({ numero: numero++, valor: entrada, data: dataEntrada ? new Date(`${dataEntrada}T12:00:00`) : null });
+        }
+        if (restante > 0) {
+            const count = Math.max(1, Number.isNaN(parcelasNumber) || parcelasNumber === 0 ? 1 : parcelasNumber);
+            const base = Math.floor((restante / count) * 100) / 100;
+            let acumulado = 0;
+            for (let index = 0; index < count; index += 1) {
+                const valor = index === count - 1
+                    ? Math.round((restante - acumulado + Number.EPSILON) * 100) / 100
+                    : base;
+                acumulado = Math.round((acumulado + valor + Number.EPSILON) * 100) / 100;
+                result.push({ numero: numero++, valor, data: addDays(baseDate, 30 * (index + 1)) });
+            }
+        }
+        return result;
+    })();
+
+    const formatarData = (date) => date ? date.toLocaleDateString('pt-BR') : '-';
+
+    const montarCheckoutPayload = () => ({
+        unidade: filial?.id,
+        idempotencyKey,
+        pedidoVendaRef: validacaoRef?.tipo === 'pedido-venda' ? validacaoRef.numero : null,
+        contratoRef: validacaoRef?.tipo === 'contrato' ? validacaoRef.numero : null,
+        itens: cart.map(item => ({
+            codigo: item.codigo,
+            quantidade: item.quantity,
+            preco_unitario: item.preco,
+            preco_original: item.preco_original,
+        })),
+        finalidade: finalidadeAtual,
+        tipoFrete,
+        prioridade,
+        enderecoEntrega: tipoFrete === '0' ? enderecoEntrega : null,
+        transportadora: tipoFrete === '2' ? {
+            razaoSocial: transportadoraRazao,
+            cnpj: transportadoraCnpj,
+        } : null,
+        pagamento: {
+            valorEntrada: valorEntradaNumber,
+            dataEntrada: dataEntrada || null,
+            parcelas: Number.isNaN(parcelasNumber) ? 0 : parcelasNumber,
+        }
+    });
+
     const handleCheckout = async () => {
+        if (limiteRevendaExcedido) {
+            setCheckoutStatus('error');
+            setErrorMessage('Compra bloqueada: O valor total do carrinho excede o limite de 70% permitido para esta Proposta.');
+            return;
+        }
+        if (entradaMaiorQueTotal) {
+            setCheckoutStatus('error');
+            setErrorMessage('Compra bloqueada: o valor de entrada não pode ser maior que o total do pedido.');
+            return;
+        }
+        if (entradaSemData) {
+            setCheckoutStatus('error');
+            setErrorMessage('Compra bloqueada: informe a data da entrada antes de finalizar.');
+            return;
+        }
+
         setIsCheckingOut(true);
         setCheckoutStatus(null);
         setErrorMessage('');
         try {
             const token = localStorage.getItem('token');
+            const payload = montarCheckoutPayload();
+            const preflightRes = await fetch('/api/checkout/preflight', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+            const preflightData = await preflightRes.json().catch(() => ({}));
+            if (!preflightRes.ok || preflightData.ok === false) {
+                const msg = preflightData.error || 'Pré-validação do pedido falhou.';
+                setErrorMessage(msg);
+                throw new Error(msg);
+            }
+            setPreflight(preflightData);
+
             const res = await fetch('/api/checkout/processar', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({
-                    unidade: filial?.id,
-                    pedidoVendaRef: pedidoVendaRef || null,
-                    itens: cart.map(item => ({
-                        codigo: item.codigo,
-                        quantidade: item.quantity,
-                        preco_unitario: item.preco,
-                        preco_original: item.preco_original,
-                    })),
-                    finalidade,
-                    tipoFrete,
-                    prioridade,
-                    enderecoEntrega: tipoFrete === '0' ? enderecoEntrega : null,
-                    transportadora: tipoFrete === '2' ? {
-                        razaoSocial: transportadoraRazao,
-                        cnpj: transportadoraCnpj,
-                    } : null,
-                    pagamento: {
-                        valorEntrada: parseFloat(valorEntrada) || 0,
-                        dataEntrada: dataEntrada || null,
-                        parcelas: parseInt(parcelas) || 1,
-                    }
-                })
+                body: JSON.stringify(payload)
             });
 
             if (!res.ok) {
@@ -139,6 +222,7 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                 clearCart();
                 onClose();
                 setCheckoutStatus(null);
+                setIdempotencyKey(`checkout-${Date.now()}-${Math.random().toString(36).slice(2)}`);
             }, 3000);
         } catch (err) {
             console.error(err);
@@ -186,16 +270,23 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                             </span>
                         </div>
                     </div>
-                    {pedidoVendaRef && (
+                    {validacaoRef?.validado && (
                         <div>
                             <p className="text-[11px] font-bold text-neutral-500 uppercase tracking-[0.12em] mb-1.5">
-                                Pedido de Venda Vinculado
+                                {validacaoRef.tipo === 'contrato' ? 'Contrato Vinculado' : 'Pedido de Venda Vinculado'}
                             </p>
                             <div className="flex items-center gap-2 rounded border border-green-200 bg-green-50 px-3 py-2">
                                 <Tag className="h-3.5 w-3.5 text-green-600 shrink-0" />
-                                <span className="text-sm font-bold text-green-800 font-mono">
-                                    Nº {pedidoVendaRef}
-                                </span>
+                                <div className="min-w-0">
+                                    <span className="text-sm font-bold text-green-800 font-mono">
+                                        Nº {validacaoRef.numero}
+                                    </span>
+                                    {validacaoRef.tipo === 'pedido-venda' && valorProposta > 0 && (
+                                        <p className="text-[11px] font-semibold text-green-700">
+                                            Limite 70%: {formatarMoeda(limiteRevenda70)}
+                                        </p>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     )}
@@ -261,10 +352,10 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                                 <RadioGroup
                                     options={[
                                         { value: 'Revenda', label: 'Revenda' },
-                                        { value: 'Aplicação', label: 'Aplicação do Material' },
+                                        { value: 'Atendimento a Contrato', label: 'Atendimento a Contrato' },
                                     ]}
-                                    value={finalidade}
-                                    onChange={setFinalidade}
+                                    value={finalidadeAtual}
+                                    onChange={setFinalidadeAtual}
                                     columns={2}
                                 />
                             </div>
@@ -383,11 +474,25 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                                             className={inputCls}
                                         >
                                             <option value="0">À vista (sem parcelamento)</option>
-                                            {[...Array(11)].map((_, i) => (
-                                                <option key={i + 2} value={i + 2}>{i + 2}x</option>
+                                            {[...Array(12)].map((_, i) => (
+                                                <option key={i + 1} value={i + 1}>{i + 1}x</option>
                                             ))}
                                         </select>
                                     </div>
+                                    {parcelamentoPreview.length > 0 && (
+                                        <div className="rounded border border-blue-100 bg-blue-50 p-3">
+                                            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.12em] text-blue-700">Prévia do parcelamento Omie</p>
+                                            <div className="grid gap-1">
+                                                {parcelamentoPreview.map(parcela => (
+                                                    <div key={parcela.numero} className="flex justify-between rounded bg-white px-2 py-1 text-[11px] font-semibold text-blue-900">
+                                                        <span>{parcela.numero}/{parcelamentoPreview.length}</span>
+                                                        <span>{formatarMoeda(parcela.valor)}</span>
+                                                        <span>{formatarData(parcela.data)}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -402,10 +507,28 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                             <span className="text-xl font-bold text-black">{formatarMoeda(totalPrice)}</span>
                         </div>
 
+                        {limiteRevendaExcedido && (
+                            <div className="rounded border border-red-200 bg-red-50 p-3 text-xs font-semibold text-danger">
+                                ❌ Compra bloqueada: O valor total do carrinho excede o limite de 70% permitido para esta Proposta.
+                                <div className="mt-1 text-[11px] font-medium text-red-700">
+                                    Total do carrinho: {formatarMoeda(totalPrice)} · Limite: {formatarMoeda(limiteRevenda70)}
+                                </div>
+                            </div>
+                        )}
+                        {(entradaMaiorQueTotal || entradaSemData) && (
+                            <div className="rounded border border-red-200 bg-red-50 p-3 text-xs font-semibold text-danger">
+                                {entradaMaiorQueTotal
+                                    ? 'Compra bloqueada: o valor de entrada não pode ser maior que o total do pedido.'
+                                    : 'Compra bloqueada: informe a data da entrada antes de finalizar.'}
+                            </div>
+                        )}
+
                         {checkoutStatus === 'success' ? (
                             <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded flex items-center gap-3">
                                 <CheckCircle size={20} />
-                                <span className="text-sm font-bold">Requisição e Pedido criados no Omie!</span>
+                                <span className="text-sm font-bold">
+                                    Requisição e Pedido criados no Omie{preflight?.planoPagamento?.qtdeParcelas ? ` · ${preflight.planoPagamento.qtdeParcelas} parcela(s) validadas` : ''}!
+                                </span>
                             </div>
                         ) : checkoutStatus === 'error' ? (
                             <div className="bg-red-50 border border-red-200 text-danger p-4 rounded flex items-center gap-3">
@@ -421,6 +544,9 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                                 disabled={
                                     isCheckingOut ||
                                     !filial ||
+                                    limiteRevendaExcedido ||
+                                    entradaMaiorQueTotal ||
+                                    entradaSemData ||
                                     (tipoFrete === '0' && !enderecoEntrega.trim()) ||
                                     (tipoFrete === '2' && (!transportadoraRazao.trim() || !transportadoraCnpj.trim()))
                                 }
@@ -429,7 +555,7 @@ export default function CartSidebar({ isOpen, onClose, cart, updateQuantity, rem
                                 {isCheckingOut ? (
                                     <>
                                         <Loader2 className="animate-spin" size={20} />
-                                        Sincronizando B2B...
+                                        Pré-validando e sincronizando B2B...
                                     </>
                                 ) : (
                                     'FINALIZAR PEDIDO NO OMIE'

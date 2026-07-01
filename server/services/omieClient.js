@@ -1,5 +1,6 @@
 const axios = require('axios');
 const logger = require('../utils/logger');
+const { etapaVendaProdutoVP } = require('./omieStages');
 
 const OMIE_API_URL = 'https://app.omie.com.br/api/v1/';
 
@@ -462,7 +463,7 @@ async function buscarIdPorCodigo(codigo, unidade = 'VP') {
 }
 
 // ─── incluirPedidoVenda (VP) ──────────────────────────────────────────────────
-exports.incluirPedidoVenda = async ({ cnpjCliente, itens, numeroPedidoCliente, observacoes = '' }) => {
+exports.incluirPedidoVenda = async ({ cnpjCliente, itens, numeroPedidoCliente, observacoes = '', planoPagamento = null }) => {
     // 1. Localiza o cliente pelo CNPJ na VerticalParts
     const clientes = await omiePost('geral/clientes/', 'ListarClientes', {
         pagina: 1,
@@ -528,6 +529,8 @@ exports.incluirPedidoVenda = async ({ cnpjCliente, itens, numeroPedidoCliente, o
     // Identificador único para evitar erro "ID não informado"
     const integrationId = `ESC-${Date.now()}`;
 
+    const etapaInicial = etapaVendaProdutoVP('SEPARAR_ESTOQUE');
+
     // 3. Inclui o pedido de venda na VP na fase "Separar Estoque / Produção"
     //    Confirmado via ListarEtapasFaturamento (etapafat) para OP:11 Venda de Produto:
     //      10 = Proposta Comercial
@@ -541,8 +544,9 @@ exports.incluirPedidoVenda = async ({ cnpjCliente, itens, numeroPedidoCliente, o
             codigo_pedido_integracao: integrationId,
             codigo_cliente: codCliente,
             data_previsao: new Date().toLocaleDateString('pt-BR'),
-            etapa: '20',
-            codigo_parcela: '999',
+            etapa: etapaInicial.codigo,
+            codigo_parcela: planoPagamento?.omieVenda?.codigo_parcela || '999',
+            qtde_parcelas: planoPagamento?.omieVenda?.qtde_parcelas || 1,
         },
         det: itensFormatados,
         informacoes_adicionais: {
@@ -552,6 +556,7 @@ exports.incluirPedidoVenda = async ({ cnpjCliente, itens, numeroPedidoCliente, o
             consumidor_final: 'N',
             enviar_email: 'N',
         },
+        ...(planoPagamento?.omieVenda?.lista_parcelas ? { lista_parcelas: planoPagamento.omieVenda.lista_parcelas } : {}),
         ...(observacoes ? { observacoes: { obs_venda: observacoes } } : {}),
     }, 'VP');
 
@@ -576,7 +581,7 @@ exports.incluirPedidoVenda = async ({ cnpjCliente, itens, numeroPedidoCliente, o
         }
     }
 
-    return { ...result, valorIpi };
+    return { ...result, codigo_pedido_integracao: integrationId, valorIpi };
 };
 
 // ─── Helper: obtém a categoria de compra baseada na finalidade × unidade ───────
@@ -605,7 +610,7 @@ function obterCategoriaCompra(unidade, finalidade) {
 }
 
 // ─── incluirRequisicaoCompra (Escamax Filial) ─────────────────────────────────
-exports.incluirRequisicaoCompra = async ({ unidade, cnpjFornecedor, itens, tipoFrete = '9', observacoes = '', valorIpi = 0, finalidade = 'Revenda' }) => {
+exports.incluirRequisicaoCompra = async ({ unidade, cnpjFornecedor, itens, tipoFrete = '9', observacoes = '', valorIpi = 0, finalidade = 'Revenda', planoPagamento = null }) => {
     // 1. Localiza o fornecedor (VP) pelo CNPJ na filial Escamax usando o endpoint unificado 'geral/clientes/'
     const dados = await omiePost('geral/clientes/', 'ListarClientes', {
         pagina: 1,
@@ -670,11 +675,13 @@ exports.incluirRequisicaoCompra = async ({ unidade, cnpjFornecedor, itens, tipoF
 
     // 4. Inclui o pedido de compra (usando tags exatas da Omie: cabecalho_incluir / frete_incluir / produtos_incluir)
     if (valorIpi > 0) logger.info(`Omie: Adicionando IPI R$${valorIpi.toFixed(2)} como Outras Despesas no pedido de compra`);
-    return await omiePost('produtos/pedidocompra/', 'IncluirPedCompra', {
+    const result = await omiePost('produtos/pedidocompra/', 'IncluirPedCompra', {
         cabecalho_incluir: {
             cCodIntPed: integrationId,
             nCodFor: codFornecedor,
             dDtPrevisao: new Date().toLocaleDateString('pt-BR'),
+            cCodParc: planoPagamento?.omieCompra?.cCodParc || '999',
+            nQtdeParc: planoPagamento?.omieCompra?.nQtdeParc || 1,
             cCodCateg,
             nCodCC: 0,
             ...(observacoes ? { cObs: observacoes } : {}),
@@ -684,8 +691,35 @@ exports.incluirRequisicaoCompra = async ({ unidade, cnpjFornecedor, itens, tipoF
             nValFrete: 0,
             ...(valorIpi > 0 ? { nValDesp: valorIpi } : {}),
         },
-        produtos_incluir: itensFormatados
+        produtos_incluir: itensFormatados,
+        ...(planoPagamento?.omieCompra?.parcelas_incluir ? { parcelas_incluir: planoPagamento.omieCompra.parcelas_incluir } : {}),
     }, unidade);
+
+    return { ...result, cCodIntPed: integrationId };
+};
+
+exports.trocarEtapaPedidoVendaVP = async ({ codigoPedido, codigoPedidoIntegracao, etapa }) => {
+    if (!codigoPedido && !codigoPedidoIntegracao) {
+        throw new Error('Informe codigoPedido ou codigoPedidoIntegracao para trocar a etapa do pedido de venda.');
+    }
+    if (!etapa) {
+        throw new Error('Informe a etapa destino do pedido de venda.');
+    }
+
+    return await omiePost('produtos/pedido/', 'TrocarEtapaPedido', {
+        ...(codigoPedido ? { codigo_pedido: Number(codigoPedido) } : {}),
+        ...(codigoPedidoIntegracao ? { codigo_pedido_integracao: codigoPedidoIntegracao } : {}),
+        etapa,
+    }, 'VP');
+};
+
+exports.marcarPedidoVendaVPParaFaturar = async ({ codigoPedido, codigoPedidoIntegracao }) => {
+    const etapaFaturar = etapaVendaProdutoVP('FATURAR');
+    return exports.trocarEtapaPedidoVendaVP({
+        codigoPedido,
+        codigoPedidoIntegracao,
+        etapa: etapaFaturar.codigo,
+    });
 };
 
 
@@ -698,6 +732,61 @@ exports.atualizarDespesasPedidoCompra = async ({ unidade, nCodPed, nValDesp }) =
     }, unidade);
 };
 
+exports.consultarPedidoCompra = async ({ unidade, numero, codigo, codigoIntegracao }) => {
+    const filtros = [];
+    if (codigo) filtros.push({ nCodPed: Number(codigo) });
+    if (numero) filtros.push({ cNumero: String(numero) });
+    if (codigoIntegracao) filtros.push({ cCodIntPed: String(codigoIntegracao) });
+
+    if (filtros.length === 0) {
+        throw new Error('Informe número, código ou código de integração do pedido de compra.');
+    }
+
+    let ultimoErro = null;
+    for (const filtro of filtros) {
+        try {
+            return await omiePost('produtos/pedidocompra/', 'ConsultarPedCompra', filtro, unidade);
+        } catch (error) {
+            ultimoErro = error;
+        }
+    }
+
+    throw ultimoErro || new Error('Pedido de compra não encontrado.');
+};
+
+exports.consultarPedidoVendaVP = async ({ codigoPedido, codigoPedidoIntegracao }) => {
+    const filtros = [];
+    if (codigoPedido) filtros.push({ nCodPed: Number(codigoPedido) });
+    if (codigoPedidoIntegracao) filtros.push({ codigo_pedido_integracao: String(codigoPedidoIntegracao) });
+
+    if (filtros.length === 0) {
+        throw new Error('Informe código interno ou código de integração do pedido de venda VP.');
+    }
+
+    let ultimoErro = null;
+    for (const filtro of filtros) {
+        try {
+            return await omiePost('produtos/pedido/', 'ConsultarPedido', filtro, 'VP');
+        } catch (error) {
+            ultimoErro = error;
+        }
+    }
+
+    throw ultimoErro || new Error('Pedido de venda VP não encontrado.');
+};
+
+function extrairValorTotalPedido(pedido) {
+    const totalPedido = pedido?.total_pedido || pedido?.pedido_venda_produto?.total_pedido || {};
+    return Number(
+        totalPedido.valor_total_pedido ??
+        totalPedido.valor_total ??
+        totalPedido.valor_mercadorias ??
+        totalPedido.valor_total_geral ??
+        totalPedido.nValorTotal ??
+        0
+    ) || 0;
+}
+
 // ─── consultarPedidoVenda: valida pedido de venda da filial Escamax ───────────
 exports.consultarPedidoVenda = async (numeroPedido, unidade) => {
     const numeroInt = parseInt(numeroPedido, 10);
@@ -706,7 +795,9 @@ exports.consultarPedidoVenda = async (numeroPedido, unidade) => {
     const data = await omiePost('produtos/pedido/', 'ListarPedidos', {
         pagina: 1,
         registros_por_pagina: 1,
-        nNumPedido: numeroInt,
+        numero_pedido_de: numeroInt,
+        numero_pedido_ate: numeroInt,
+        apenas_resumo: 'N',
     }, unidade);
 
     const pedidos = data.pedido_venda_produto || [];
@@ -726,9 +817,142 @@ exports.consultarPedidoVenda = async (numeroPedido, unidade) => {
         cab.nome_vendedor ||
         null;
 
+    let valorTotal = extrairValorTotalPedido(pedido);
+    const codigoPedidoOmie = cab.codigo_pedido || cab.codigo_pedido_omie || cab.nCodPed;
+    if (!valorTotal && codigoPedidoOmie) {
+        try {
+            const detalhes = await omiePost('produtos/pedido/', 'ConsultarPedido', {
+                nCodPed: Number(codigoPedidoOmie),
+            }, unidade);
+            valorTotal = extrairValorTotalPedido(detalhes);
+        } catch (e) {
+            logger.warn(`Omie: não foi possível consultar total do pedido ${numeroPedido}: ${e.message}`);
+        }
+    }
+
     return {
         numero: cab.numero_pedido || numeroPedido,
         vendedor,
+        valorTotal,
+        limiteCompra70: Number((valorTotal * 0.7).toFixed(2)),
+    };
+};
+
+const TAGS_CONTRATO_COM_PECAS = [
+    'contrato com pecas',
+    'cto com pecas',
+    'contrato parcial com pecas',
+    'cto parcial com pecas',
+];
+
+function normalizarTextoOmie(texto) {
+    return String(texto || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
+}
+
+function extrairContratoCadastro(response) {
+    return response?.contratoCadastro || response?.contrato_cadastro || response || null;
+}
+
+async function consultarContratoPorChave(numeroContrato, unidade) {
+    const trimmed = String(numeroContrato || '').trim();
+
+    if (/^\d+$/.test(trimmed)) {
+        try {
+            const porCodigo = await omiePost('servicos/contrato/', 'ConsultarContrato', {
+                contratoChave: { nCodCtr: Number(trimmed) },
+            }, unidade);
+            const contrato = extrairContratoCadastro(porCodigo);
+            if (contrato?.cabecalho) return contrato;
+        } catch (e) {
+            logger.info(`Omie: ConsultarContrato nCodCtr=${trimmed} em ${unidade}: ${e.response?.data?.faultstring || e.message}`);
+        }
+    }
+
+    try {
+        const porIntegracao = await omiePost('servicos/contrato/', 'ConsultarContrato', {
+            contratoChave: { cCodIntCtr: trimmed },
+        }, unidade);
+        const contrato = extrairContratoCadastro(porIntegracao);
+        if (contrato?.cabecalho) return contrato;
+    } catch (e) {
+        logger.info(`Omie: ConsultarContrato cCodIntCtr=${trimmed} em ${unidade}: ${e.response?.data?.faultstring || e.message}`);
+    }
+
+    return null;
+}
+
+async function listarContratoPorNumero(numeroContrato, unidade) {
+    const alvo = normalizarTextoOmie(numeroContrato);
+    let pagina = 1;
+    let totalPaginas = 1;
+
+    do {
+        const data = await omiePost('servicos/contrato/', 'ListarContratos', {
+            pagina,
+            registros_por_pagina: 50,
+            apenas_importado_api: 'N',
+            cExibeObs: 'S',
+            cExibirProdutos: 'S',
+            cExibirInfoCadastro: 'S',
+        }, unidade);
+
+        totalPaginas = Number(data.total_de_paginas || 1);
+        const contratos = data.contratoCadastro || [];
+        const encontrado = contratos.find(contrato => {
+            const cab = contrato.cabecalho || {};
+            return [
+                cab.cNumCtr,
+                cab.nCodCtr,
+                cab.cCodIntCtr,
+            ].some(valor => normalizarTextoOmie(valor) === alvo);
+        });
+
+        if (encontrado) return encontrado;
+        pagina++;
+    } while (pagina <= totalPaginas);
+
+    return null;
+}
+
+exports.consultarContratoComPecas = async (numeroContrato, unidade) => {
+    const numero = String(numeroContrato || '').trim();
+    if (!numero) throw new Error('Número do contrato obrigatório');
+
+    const contrato =
+        await consultarContratoPorChave(numero, unidade) ||
+        await listarContratoPorNumero(numero, unidade);
+
+    if (!contrato?.cabecalho) return null;
+
+    const cab = contrato.cabecalho;
+    const codigoCliente = cab.nCodCli;
+    if (!codigoCliente) {
+        throw new Error(`Contrato ${numero} encontrado, mas sem cliente vinculado`);
+    }
+
+    const tagsResponse = await omiePost('geral/clientetag/', 'ListarTags', {
+        nCodCliente: Number(codigoCliente),
+    }, unidade);
+
+    const tags = (tagsResponse.tagsLista || tagsResponse.tags || [])
+        .map(tag => String(tag.tag || tag.cTag || tag.nomeTag || '').trim())
+        .filter(Boolean);
+
+    const tagValida = tags.find(tag => TAGS_CONTRATO_COM_PECAS.includes(normalizarTextoOmie(tag))) || null;
+
+    return {
+        valido: Boolean(tagValida),
+        numero: cab.cNumCtr || numero,
+        codigo: cab.nCodCtr || null,
+        codigoIntegracao: cab.cCodIntCtr || null,
+        codigoCliente,
+        situacao: cab.cCodSit || null,
+        tags,
+        tagValida,
     };
 };
 

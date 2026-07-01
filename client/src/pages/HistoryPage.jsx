@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { CheckCircle, XCircle, Clock, ChevronDown, ChevronUp, Package, Calendar, Filter, RefreshCw, Building2 } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, ChevronDown, ChevronUp, Package, Calendar, Filter, RefreshCw, Building2, CreditCard } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
@@ -33,7 +33,16 @@ function StatusBadge({ status, numero, label }) {
     );
 }
 
-function OrderRow({ order }) {
+const BRL = value => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(value || 0));
+
+function formatDateBR(value) {
+    if (!value) return '-';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '-';
+    return date.toLocaleDateString('pt-BR');
+}
+
+function OrderRow({ order, onAudit, auditing }) {
     const [expanded, setExpanded] = useState(false);
     const date = new Date(order.criadoEm);
     const dateStr = date.toLocaleDateString('pt-BR');
@@ -41,6 +50,8 @@ function OrderRow({ order }) {
 
     const overallOk = order.pedido_compra?.status === 'ok' && order.pedido_venda?.status === 'ok';
     const overallErr = order.pedido_compra?.status === 'erro' || order.pedido_venda?.status === 'erro';
+    const contasPagar = order.financeiro?.compra || null;
+    const auditoria = order.auditoria_omie || null;
 
     return (
         <div className={`rounded-xl border shadow-card transition-colors ${overallOk ? 'border-green-200 bg-green-50/40' : overallErr ? 'border-red-200 bg-red-50/40' : 'border-neutral-200 bg-white'}`}>
@@ -110,6 +121,70 @@ function OrderRow({ order }) {
                         </div>
                     )}
 
+                    {contasPagar?.status === 'confirmado_por_pedido_compra' && (
+                        <div className="mb-3 p-3 rounded bg-green-50 border border-green-200">
+                            <div className="flex items-center gap-2 mb-2">
+                                <CreditCard size={14} className="text-green-700 shrink-0" />
+                                <p className="text-[11px] font-bold text-green-700 uppercase tracking-[0.1em]">
+                                    Contas a pagar Escamax para VerticalParts
+                                </p>
+                            </div>
+                            <p className="text-xs font-semibold text-green-800">
+                                Lastro: Pedido de Compra Nº {contasPagar.pedidoCompraNumero || order.pedido_compra?.numero || '-'} · {BRL(contasPagar.total)} em {contasPagar.qtdeParcelas} parcela(s)
+                            </p>
+                            <div className="mt-2 grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
+                                {(contasPagar.parcelas || []).map(parcela => (
+                                    <div key={parcela.numero} className="rounded border border-green-100 bg-white px-2 py-1 text-[11px] font-semibold text-green-900">
+                                        {parcela.numero}/{contasPagar.qtdeParcelas} · {BRL(parcela.valor)} · {formatDateBR(parcela.data)}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="mb-3 flex justify-end">
+                        <button
+                            type="button"
+                            onClick={() => onAudit(order)}
+                            disabled={auditing}
+                            className="inline-flex items-center gap-2 rounded border border-neutral-200 bg-white px-3 py-1.5 text-xs font-bold text-neutral-700 transition hover:border-primary disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            <RefreshCw size={13} className={auditing ? 'animate-spin' : ''} />
+                            Reauditar Omie
+                        </button>
+                    </div>
+
+                    {auditoria && (
+                        <div className={`mb-3 p-3 rounded border ${auditoria.status === 'verificado' ? 'bg-blue-50 border-blue-200' : 'bg-amber-50 border-amber-200'}`}>
+                            <p className={`text-[11px] font-bold uppercase tracking-[0.1em] mb-1 ${auditoria.status === 'verificado' ? 'text-blue-700' : 'text-amber-700'}`}>
+                                Auditoria Omie
+                            </p>
+                            {auditoria.status === 'verificado' ? (
+                                <div className="grid gap-2 text-xs font-semibold text-blue-900 sm:grid-cols-2">
+                                    <div>
+                                        Compra Escamax: {auditoria.compraEscamax?.existe ? 'localizada' : 'não localizada'} · {auditoria.compraEscamax?.parcelas || '-'} parcela(s)
+                                    </div>
+                                    <div>
+                                        Venda VP: {auditoria.vendaVerticalParts?.existe ? 'localizada' : 'não localizada'} · etapa {auditoria.vendaVerticalParts?.etapa || '-'}
+                                    </div>
+                                </div>
+                            ) : (
+                                <p className="text-xs font-semibold text-amber-800">{auditoria.detalhe || 'Verificação pendente.'}</p>
+                            )}
+                        </div>
+                    )}
+
+                    {order.pedido_venda?.etapa_sync_status === 'erro' && (
+                        <div className="mb-3 p-3 rounded bg-amber-50 border border-amber-200">
+                            <p className="text-[11px] font-bold text-amber-700 uppercase tracking-[0.1em] mb-1">
+                                Sincronização de etapa VP pendente
+                            </p>
+                            <p className="text-xs font-semibold text-amber-800">
+                                {order.pedido_venda.etapa_sync_detalhe || 'A etapa do Pedido de Venda VP precisa ser revisada no Omie.'}
+                            </p>
+                        </div>
+                    )}
+
                     {/* Itens */}
                     <p className="text-[11px] font-bold text-neutral-400 mb-2 uppercase tracking-[0.1em]">Itens do pedido</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
@@ -134,6 +209,8 @@ export default function HistoryPage() {
     const [allOrders, setAllOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [auditError, setAuditError] = useState('');
+    const [auditingId, setAuditingId] = useState('');
     const [lastUpdated, setLastUpdated] = useState(null);
 
     // Filtros de data
@@ -183,6 +260,26 @@ export default function HistoryPage() {
     }, [allOrders, unidadeFiltro]);
 
     const handleFiltrar = () => fetchOrders(de, ate);
+
+    const handleAudit = async (order) => {
+        setAuditError('');
+        setAuditingId(order.id);
+        try {
+            const res = await fetch(`${API_BASE}/api/orders/${encodeURIComponent(order.id)}/auditoria-omie`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok && res.status !== 202) {
+                throw new Error(data.error || `Erro ${res.status}`);
+            }
+            await fetchOrders(de, ate);
+        } catch (e) {
+            setAuditError(e.message || 'Erro ao reauditar pedido.');
+        } finally {
+            setAuditingId('');
+        }
+    };
 
     const inputCls = "bg-white border border-neutral-200 rounded px-3 py-1.5 text-sm text-black outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20 transition";
 
@@ -276,6 +373,11 @@ export default function HistoryPage() {
                     </button>
                 </div>
             )}
+            {auditError && (
+                <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">
+                    {auditError}
+                </div>
+            )}
             {!loading && !error && orders.length === 0 && (
                 <div className="text-center py-16 text-neutral-400">
                     <Package size={40} className="mx-auto mb-3 opacity-30" />
@@ -289,7 +391,7 @@ export default function HistoryPage() {
             {!loading && !error && orders.length > 0 && (
                 <div className="space-y-3">
                     {orders.map(order => (
-                        <OrderRow key={order.id} order={order} />
+                        <OrderRow key={order.id} order={order} onAudit={handleAudit} auditing={auditingId === order.id} />
                     ))}
                 </div>
             )}
