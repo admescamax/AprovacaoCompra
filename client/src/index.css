@@ -1,33 +1,62 @@
+/* Fontes da identidade VerticalParts */
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color-scheme: dark;
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  :root {
+    font-family: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    line-height: 1.5;
+    color-scheme: light;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    background-color: #fafafa;   /* neutral-50 */
+    color: #111111;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Scrollbar para painéis escuros (sidebar) */
+  .dark-scroll::-webkit-scrollbar        { width: 5px; }
+  .dark-scroll::-webkit-scrollbar-track  { background: transparent; }
+  .dark-scroll::-webkit-scrollbar-thumb  { background: rgba(255,255,255,0.12); border-radius: 99px; }
+  .dark-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+
+  ::selection { background: #F5C400; color: #000; }
 }
 
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  background-color: #020617; /* Slate 950 */
-  color: #f8fafc; /* Slate 50 */
-}
-
-/* Glassmorphism Utilities */
-.glass {
-    background: rgba(30, 41, 59, 0.7);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.glass-panel {
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+@layer components {
+  /* Título display industrial — Barlow Condensed, uppercase */
+  .vp-display {
+    font-family: '"Barlow Condensed"', 'Barlow Condensed', Inter, sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+  }
+  /* Eyebrow dourado com régua */
+  .vp-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #C99E00;
+  }
+  .vp-eyebrow::before {
+    content: '';
+    height: 2px;
+    width: 1.5rem;
+    background: #F5C400;
+  }
 }

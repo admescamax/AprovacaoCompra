@@ -1,48 +1,87 @@
 const omieClient = require('../services/omieClient');
+const { normalizarPlanoPagamento } = require('../services/paymentPlan');
+const { criarFluxoAprovacaoProdutos } = require('../services/approvalEngine');
+const { appendOrder, findOrderByIdempotencyKey } = require('../services/orderStore');
+const { criarRegistroContasPagarEscamax } = require('../services/financialTrace');
+const { cnpjFiliais, calcularTotalCarrinho, validarCheckoutPreflight } = require('../services/checkoutPreflight');
+const { etapaVendaProdutoVP } = require('../services/omieStages');
+const { montarAuditoriaOmie, montarAuditoriaErro } = require('../services/omieAudit');
 const logger = require('../utils/logger');
-const fs = require('fs');
-const path = require('path');
-
-const ORDERS_FILE = path.resolve(__dirname, '../data/orders.json');
-
-// Mapeamento de CNPJ por filial (lidos do .env, sem formatação)
-const CNPJ_FILIAIS = () => ({
-    PICARRAS:      (process.env.CNPJ_PICARRAS || '').replace(/\D/g, ''),
-    BRASILIA:      (process.env.CNPJ_BRASILIA || '').replace(/\D/g, ''),
-    SAOPAULO:      (process.env.CNPJ_SAOPAULO || '').replace(/\D/g, ''),
-    FLORIANOPOLIS: (process.env.CNPJ_FLORIANOPOLIS || '').replace(/\D/g, ''),
-    SALVADOR:      (process.env.CNPJ_SALVADOR || '').replace(/\D/g, ''),
-});
 
 function saveOrder(entry) {
     try {
-        let orders = [];
-        try {
-            const raw = fs.readFileSync(ORDERS_FILE, 'utf8');
-            orders = JSON.parse(raw || '[]');
-        } catch { /* arquivo ainda não existe */ }
-        orders.push(entry);
-        fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2), 'utf8');
+        appendOrder(entry);
     } catch (e) {
         logger.error(`Erro ao salvar pedido no histórico: ${e.message}`);
     }
 }
 
+exports.preflight = async (req, res) => {
+    try {
+        const resultado = validarCheckoutPreflight(req.body);
+        res.json(resultado);
+    } catch (error) {
+        res.status(400).json({ ok: false, error: error.message });
+    }
+};
+
 exports.processar = async (req, res) => {
     logger.info(`API: Recebida requisição de checkout: ${JSON.stringify(req.body)}`);
-    const { unidade, itens, finalidade, tipoFrete, prioridade, pagamento, enderecoEntrega, transportadora } = req.body;
+    const { unidade, itens, finalidade, tipoFrete, prioridade, pagamento, enderecoEntrega, transportadora, pedidoVendaRef, contratoRef, idempotencyKey } = req.body;
 
-    if (!unidade || !itens || itens.length === 0) {
-        return res.status(400).json({ error: 'Unidade e itens são obrigatórios' });
+    const chaveIdempotencia = String(idempotencyKey || '').trim();
+    if (chaveIdempotencia) {
+        const existente = findOrderByIdempotencyKey(chaveIdempotencia);
+        if (existente) {
+            logger.warn(`Checkout idempotente reutilizado: ${chaveIdempotencia} -> ${existente.id}`);
+            return res.status(200).json({
+                message: 'Pedido já processado anteriormente para esta chave.',
+                reused: true,
+                orderId: existente.id,
+                pedido_compra: existente.pedido_compra?.numero || null,
+                pedido_venda: existente.pedido_venda?.numero || null,
+                pagamento: existente.planoPagamento ? {
+                    qtdeParcelas: existente.planoPagamento.qtdeParcelas,
+                    total: existente.planoPagamento.total,
+                } : null,
+            });
+        }
     }
 
+    let preflight;
+    try {
+        preflight = validarCheckoutPreflight(req.body);
+    } catch (error) {
+        return res.status(400).json({ error: error.message });
+    }
+
+    if (finalidade === 'Revenda') {
+        const pedidoValidado = await omieClient.consultarPedidoVenda(pedidoVendaRef, unidade);
+        if (!pedidoValidado) {
+            return res.status(400).json({ error: 'Pedido de Venda inválido ou não encontrado na filial selecionada.' });
+        }
+        if (!pedidoValidado.valorTotal || pedidoValidado.valorTotal <= 0) {
+            return res.status(400).json({ error: 'Pedido de Venda sem valor total positivo para calcular o limite de 70%.' });
+        }
+
+        const totalCarrinho = calcularTotalCarrinho(itens);
+        const limite = pedidoValidado.limiteCompra70;
+        if (totalCarrinho > limite) {
+            return res.status(400).json({
+                error: 'Compra bloqueada: O valor total do carrinho excede o limite de 70% permitido para esta Proposta.',
+                totalCarrinho,
+                valorProposta: pedidoValidado.valorTotal,
+                limiteCompra70: limite,
+            });
+        }
+    }
+
+    const totalCarrinho = preflight.totalCarrinho;
+    const planoPagamento = normalizarPlanoPagamento(pagamento, totalCarrinho);
+    const aprovacao = criarFluxoAprovacaoProdutos({ valorTotal: totalCarrinho, origem: 'checkout' });
+
     // Monta texto de observações para enviar ao Omie
-    const pagamentoDesc = pagamento
-        ? [
-            pagamento.valorEntrada > 0 ? `Entrada: R$${pagamento.valorEntrada.toFixed(2)}${pagamento.dataEntrada ? ` em ${new Date(pagamento.dataEntrada + 'T12:00:00').toLocaleDateString('pt-BR')}` : ''}` : null,
-            pagamento.parcelas > 1 ? `Restante: ${pagamento.parcelas}x` : pagamento.parcelas === 0 ? 'À vista' : null
-        ].filter(Boolean).join(' | ')
-        : null;
+    const pagamentoDesc = `Pagamento: ${planoPagamento.descricao}`;
 
     // Descrição do frete conforme tipo selecionado
     let freteDesc = null;
@@ -56,6 +95,8 @@ exports.processar = async (req, res) => {
     }
 
     const observacoes = [
+        pedidoVendaRef ? `Ref. Pedido de Venda Escamax: ${pedidoVendaRef}` : null,
+        contratoRef ? `Ref. Contrato Escamax: ${contratoRef}` : null,
         finalidade ? `Finalidade: ${finalidade}` : null,
         prioridade ? `Prioridade: ${prioridade}` : null,
         freteDesc || null,
@@ -64,20 +105,29 @@ exports.processar = async (req, res) => {
 
     const orderEntry = {
         id: `ESC-${Date.now()}`,
+        idempotencyKey: chaveIdempotencia || null,
         criadoEm: new Date().toISOString(),
         unidade,
+        pedidoVendaRef: pedidoVendaRef || null,
+        contratoRef: contratoRef || null,
         itens,
         finalidade: finalidade || null,
         tipoFrete: tipoFrete || '9',
         prioridade: prioridade || null,
         pagamento: pagamento || null,
+        planoPagamento,
+        aprovacao,
+        financeiro: {
+            compra: { status: 'pendente', detalhe: 'Aguardando criação do Pedido de Compra na filial Escamax.' },
+            venda: { status: 'pendente', detalhe: 'Aguardando criação do Pedido de Venda na VerticalParts.' },
+        },
         pedido_compra: { numero: null, status: 'pendente', detalhe: null },
         pedido_venda: { numero: null, status: 'pendente', detalhe: null },
     };
 
     try {
         const cleanCnpjVP = (process.env.CNPJ_VP || '15.822.325/0001-27').replace(/\D/g, '');
-        const cleanCnpjEscamax = CNPJ_FILIAIS()[unidade] || null;
+        const cleanCnpjEscamax = cnpjFiliais()[unidade] || null;
 
         if (!cleanCnpjEscamax) {
             return res.status(400).json({ error: `Unidade "${unidade}" não configurada. Verifique o CNPJ no .env.` });
@@ -95,15 +145,29 @@ exports.processar = async (req, res) => {
                 itens,
                 tipoFrete: tipoFrete || '9',
                 observacoes,
-                finalidade: finalidade || 'Revenda'
+                finalidade: finalidade || 'Revenda',
+                planoPagamento,
             });
             idCompra = resCompra.cNumero || resCompra.nCodPed;
             nCodPedCompra = resCompra.nCodPed || null;
             logger.info(`Requisição de Compra criada na ${unidade}: ${idCompra} (ID: ${nCodPedCompra})`);
-            orderEntry.pedido_compra = { numero: idCompra, status: 'ok', detalhe: null };
+            orderEntry.pedido_compra = {
+                numero: idCompra,
+                codigo: nCodPedCompra,
+                codigo_integracao: resCompra.cCodIntPed || resCompra.codigo_pedido_integracao || null,
+                status: 'ok',
+                detalhe: null,
+            };
+            orderEntry.financeiro.compra = criarRegistroContasPagarEscamax({
+                unidade,
+                pedidoCompra: orderEntry.pedido_compra,
+                planoPagamento,
+                totalPedido: totalCarrinho,
+            });
         } catch (errCompra) {
             const detalhe = errCompra.response?.data?.faultstring || errCompra.message;
             orderEntry.pedido_compra = { numero: null, status: 'erro', detalhe };
+            orderEntry.financeiro.compra = { status: 'erro', detalhe };
             // Salva parcial e retorna erro
             saveOrder(orderEntry);
             throw errCompra;
@@ -117,15 +181,37 @@ exports.processar = async (req, res) => {
                 cnpjCliente: cleanCnpjEscamax,
                 itens,
                 numeroPedidoCliente: idCompra,
-                observacoes
+                observacoes,
+                planoPagamento,
             });
             idVenda = resVenda.numero_pedido || resVenda.codigo_pedido_omie;
             valorIpi = resVenda.valorIpi || 0;
+            const etapaInicialVP = etapaVendaProdutoVP('SEPARAR_ESTOQUE');
             logger.info(`Pedido de Venda criado na VerticalParts: ${idVenda} | IPI: R$${valorIpi.toFixed(2)}`);
-            orderEntry.pedido_venda = { numero: idVenda, status: 'ok', detalhe: null };
+            orderEntry.pedido_venda = {
+                numero: idVenda,
+                codigo: resVenda.codigo_pedido_omie || resVenda.codigo_pedido || null,
+                codigo_integracao: resVenda.codigo_pedido_integracao || null,
+                etapa: etapaInicialVP.codigo,
+                etapa_label: etapaInicialVP.label,
+                status: 'ok',
+                detalhe: null,
+            };
+            orderEntry.financeiro.venda = {
+                status: 'pedido_venda_criado',
+                origem: 'Omie VerticalParts',
+                pedidoVendaNumero: idVenda,
+                pedidoVendaCodigo: orderEntry.pedido_venda.codigo,
+                pedidoVendaIntegracao: orderEntry.pedido_venda.codigo_integracao,
+                total: planoPagamento.total,
+                qtdeParcelas: planoPagamento.qtdeParcelas,
+                criadoEm: new Date().toISOString(),
+                observacao: 'Pedido de Venda VP criado com o mesmo plano financeiro usado no Pedido de Compra Escamax.',
+            };
         } catch (errVenda) {
             const detalhe = errVenda.response?.data?.faultstring || errVenda.message;
             orderEntry.pedido_venda = { numero: null, status: 'erro', detalhe };
+            orderEntry.financeiro.venda = { status: 'erro', detalhe };
             saveOrder(orderEntry);
             throw errVenda;
         }
@@ -140,13 +226,37 @@ exports.processar = async (req, res) => {
             }
         }
 
+        try {
+            const [consultaCompra, consultaVenda] = await Promise.all([
+                omieClient.consultarPedidoCompra({
+                    unidade,
+                    numero: orderEntry.pedido_compra.numero,
+                    codigo: orderEntry.pedido_compra.codigo,
+                    codigoIntegracao: orderEntry.pedido_compra.codigo_integracao,
+                }),
+                omieClient.consultarPedidoVendaVP({
+                    codigoPedido: orderEntry.pedido_venda.codigo,
+                    codigoPedidoIntegracao: orderEntry.pedido_venda.codigo_integracao,
+                }),
+            ]);
+            orderEntry.auditoria_omie = montarAuditoriaOmie({ order: orderEntry, consultaCompra, consultaVenda });
+            logger.info(`Auditoria Omie concluída para ${orderEntry.id}: ${orderEntry.auditoria_omie.status}`);
+        } catch (error) {
+            orderEntry.auditoria_omie = montarAuditoriaErro(error);
+            logger.warn(`Auditoria Omie pendente para ${orderEntry.id}: ${orderEntry.auditoria_omie.detalhe}`);
+        }
+
         // Tudo OK — persiste
         saveOrder(orderEntry);
 
         return res.json({
             message: 'Pedidos criados com sucesso!',
             pedido_compra: idCompra,
-            pedido_venda: idVenda
+            pedido_venda: idVenda,
+            pagamento: {
+                qtdeParcelas: planoPagamento.qtdeParcelas,
+                total: planoPagamento.total,
+            },
         });
 
     } catch (error) {
@@ -169,7 +279,7 @@ exports.diagnosticar = async (req, res) => {
 
     try {
         const cleanCnpjVP = (process.env.CNPJ_VP || '15.822.325/0001-27').replace(/\D/g, '');
-        const cleanCnpjEscamax = CNPJ_FILIAIS()[unidade] || null;
+        const cleanCnpjEscamax = cnpjFiliais()[unidade] || null;
 
         const results = {
             unidade,

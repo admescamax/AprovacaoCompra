@@ -32,9 +32,9 @@ function BarChart({ data, valueKey, labelKey, formatValue, color }) {
             {ticks.map((t, i) => (
                 <g key={i}>
                     <line x1={PAD.left} y1={t.y} x2={W - PAD.right} y2={t.y}
-                        stroke="#334155" strokeWidth="1" strokeDasharray="4 3" />
+                        stroke="#e5e5e5" strokeWidth="1" strokeDasharray="4 3" />
                     <text x={PAD.left - 6} y={t.y + 4} textAnchor="end"
-                        fontSize="10" fill="#64748b">{t.label}</text>
+                        fontSize="10" fill="#a0a0a0">{t.label}</text>
                 </g>
             ))}
 
@@ -46,10 +46,10 @@ function BarChart({ data, valueKey, labelKey, formatValue, color }) {
                 return (
                     <g key={i}>
                         <rect x={x} y={y} width={barW} height={barH}
-                            rx="4" fill={color} opacity="0.85" />
+                            rx="2" fill={color} />
                         {/* Label */}
                         <text x={x + barW / 2} y={H - PAD.bottom + 14}
-                            textAnchor="middle" fontSize="10" fill="#94a3b8">
+                            textAnchor="middle" fontSize="10" fill="#4a4a4a">
                             {fmtMes(d[labelKey])}
                         </text>
                     </g>
@@ -62,15 +62,13 @@ function BarChart({ data, valueKey, labelKey, formatValue, color }) {
 // ── KPI Card ─────────────────────────────────────────────────────────────────
 function KpiCard({ icon: Icon, label, value, sub, color }) {
     return (
-        <div className={`rounded-2xl border bg-slate-800/50 border-slate-700/50 p-5 flex items-start gap-4`}>
-            <div className={`rounded-xl p-3 ${color}`}>
-                <Icon size={22} className="text-white" />
+        <div className="rounded-xl border border-neutral-200 bg-white shadow-card p-5">
+            <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${color}`}>
+                <Icon size={20} />
             </div>
-            <div>
-                <p className="text-xs text-slate-400 mb-1">{label}</p>
-                <p className="text-xl font-bold text-white leading-tight break-all">{value}</p>
-                {sub && <p className="text-xs text-slate-500 mt-1">{sub}</p>}
-            </div>
+            <p className="text-2xl font-bold text-black leading-none break-all">{value}</p>
+            {sub && <p className="mt-1 text-xs text-neutral-500">{sub}</p>}
+            <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.1em] text-neutral-400">{label}</p>
         </div>
     );
 }
@@ -82,22 +80,22 @@ function MonthTable({ meses }) {
         <div className="overflow-x-auto">
             <table className="w-full text-sm">
                 <thead>
-                    <tr className="border-b border-slate-700/50 text-left">
-                        <th className="pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wide">Mês</th>
-                        <th className="pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wide text-right">Pedidos</th>
-                        <th className="pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wide text-right">Valor Total</th>
-                        <th className="pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wide text-right">Sucesso</th>
-                        <th className="pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wide text-right">Erro</th>
+                    <tr className="border-b border-neutral-200 text-left">
+                        <th className="pb-2 text-[11px] font-bold text-neutral-500 uppercase tracking-[0.1em]">Mês</th>
+                        <th className="pb-2 text-[11px] font-bold text-neutral-500 uppercase tracking-[0.1em] text-right">Pedidos</th>
+                        <th className="pb-2 text-[11px] font-bold text-neutral-500 uppercase tracking-[0.1em] text-right">Valor Total</th>
+                        <th className="pb-2 text-[11px] font-bold text-neutral-500 uppercase tracking-[0.1em] text-right">Sucesso</th>
+                        <th className="pb-2 text-[11px] font-bold text-neutral-500 uppercase tracking-[0.1em] text-right">Erro</th>
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-700/30">
+                <tbody>
                     {[...meses].reverse().map((m) => (
-                        <tr key={m.mes} className="hover:bg-slate-700/20 transition-colors">
-                            <td className="py-2.5 font-medium text-white">{fmtMes(m.mes)}</td>
-                            <td className="py-2.5 text-right text-slate-300">{m.pedidos}</td>
-                            <td className="py-2.5 text-right text-emerald-400 font-semibold">{BRL(m.valor)}</td>
-                            <td className="py-2.5 text-right text-emerald-400">{m.ok}</td>
-                            <td className="py-2.5 text-right text-red-400">{m.erro}</td>
+                        <tr key={m.mes} className="border-b border-neutral-200 hover:bg-neutral-50 transition-colors">
+                            <td className="py-2.5 font-bold text-black">{fmtMes(m.mes)}</td>
+                            <td className="py-2.5 text-right text-neutral-600 font-medium">{m.pedidos}</td>
+                            <td className="py-2.5 text-right text-green-600 font-bold">{BRL(m.valor)}</td>
+                            <td className="py-2.5 text-right text-green-600 font-medium">{m.ok}</td>
+                            <td className="py-2.5 text-right text-danger font-medium">{m.erro}</td>
                         </tr>
                     ))}
                 </tbody>
@@ -131,12 +129,12 @@ export default function DashboardPage() {
 
     if (loading) return (
         <div className="max-w-5xl mx-auto space-y-4">
-            {[1, 2, 3].map(i => <div key={i} className="h-24 rounded-2xl bg-slate-800/40 animate-pulse border border-slate-700/50" />)}
+            {[1, 2, 3].map(i => <div key={i} className="h-24 rounded-xl bg-white animate-pulse border border-neutral-200" />)}
         </div>
     );
 
     if (error) return (
-        <div className="max-w-5xl mx-auto p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 flex gap-2 items-center">
+        <div className="max-w-5xl mx-auto p-4 rounded-xl bg-red-50 border border-red-200 text-danger text-sm font-semibold flex gap-2 items-center">
             <AlertCircle size={18} /> Erro ao carregar dashboard: {error}
         </div>
     );
@@ -148,23 +146,23 @@ export default function DashboardPage() {
     const hasMeses = meses.length > 0;
 
     return (
-        <div className="max-w-5xl mx-auto space-y-8">
+        <div className="max-w-5xl mx-auto space-y-6">
             {/* Header */}
             <div>
-                <h1 className="text-2xl font-bold text-white mb-1">Dashboard</h1>
-                <p className="text-sm text-slate-400">Visão geral dos pedidos enviados.</p>
+                <h1 className="font-display text-2xl text-black">Dashboard</h1>
+                <p className="text-sm text-neutral-500 mt-0.5">Visão geral dos pedidos enviados.</p>
             </div>
 
             {/* KPIs */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <KpiCard icon={ShoppingCart} label="Total de Pedidos" value={totalPedidos}
-                    sub="todos os meses" color="bg-sky-600" />
+                    sub="todos os meses" color="bg-primary/15 text-primary-dark" />
                 <KpiCard icon={DollarSign} label="Valor Total" value={BRL(totalGeral)}
-                    sub="soma de todos os pedidos" color="bg-emerald-600" />
+                    sub="soma de todos os pedidos" color="bg-green-100 text-green-600" />
                 <KpiCard icon={CheckCircle} label="Taxa de Sucesso" value={`${taxaSucesso}%`}
-                    sub={`${totalOk} de ${totalPedidos} com sucesso`} color="bg-violet-600" />
+                    sub={`${totalOk} de ${totalPedidos} com sucesso`} color="bg-violet-100 text-violet-600" />
                 <KpiCard icon={TrendingUp} label="Meses Ativos" value={meses.length}
-                    sub="meses com pedidos" color="bg-amber-600" />
+                    sub="meses com pedidos" color="bg-amber-100 text-amber-600" />
             </div>
 
             {hasMeses ? (
@@ -172,33 +170,33 @@ export default function DashboardPage() {
                     {/* Charts row */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Pedidos por mês */}
-                        <div className="rounded-2xl border border-slate-700/50 bg-slate-800/50 p-5">
-                            <p className="text-sm font-semibold text-white mb-4">Pedidos por Mês</p>
+                        <div className="rounded-xl border border-neutral-200 bg-white shadow-card p-5">
+                            <p className="text-[11px] font-bold text-neutral-500 uppercase tracking-[0.1em] mb-4">Pedidos por Mês</p>
                             <div className="h-44">
                                 <BarChart data={meses} valueKey="pedidos" labelKey="mes"
-                                    formatValue={v => Math.round(v)} color="#38bdf8" />
+                                    formatValue={v => Math.round(v)} color="#F5C400" />
                             </div>
                         </div>
 
                         {/* Valor por mês */}
-                        <div className="rounded-2xl border border-slate-700/50 bg-slate-800/50 p-5">
-                            <p className="text-sm font-semibold text-white mb-4">Valor por Mês (R$)</p>
+                        <div className="rounded-xl border border-neutral-200 bg-white shadow-card p-5">
+                            <p className="text-[11px] font-bold text-neutral-500 uppercase tracking-[0.1em] mb-4">Valor por Mês (R$)</p>
                             <div className="h-44">
                                 <BarChart data={meses} valueKey="valor" labelKey="mes"
                                     formatValue={v => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : Math.round(v)}
-                                    color="#34d399" />
+                                    color="#22c55e" />
                             </div>
                         </div>
                     </div>
 
                     {/* Table */}
-                    <div className="rounded-2xl border border-slate-700/50 bg-slate-800/50 p-5">
-                        <p className="text-sm font-semibold text-white mb-4">Resumo por Mês</p>
+                    <div className="rounded-xl border border-neutral-200 bg-white shadow-card p-5">
+                        <p className="text-[11px] font-bold text-neutral-500 uppercase tracking-[0.1em] mb-4">Resumo por Mês</p>
                         <MonthTable meses={meses} />
                     </div>
                 </>
             ) : (
-                <div className="text-center py-20 text-slate-500">
+                <div className="text-center py-20 text-neutral-400">
                     <TrendingUp size={40} className="mx-auto mb-3 opacity-30" />
                     <p className="text-sm">Nenhum pedido registrado ainda.<br />Os dados aparecerão aqui após o primeiro checkout.</p>
                 </div>

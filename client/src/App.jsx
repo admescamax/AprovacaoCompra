@@ -1,51 +1,190 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { ShoppingCart } from 'lucide-react';
 import { useAuth } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
+import FilialSelectPage from './pages/FilialSelectPage';
 import SearchPage from './pages/SearchPage';
 import HistoryPage from './pages/HistoryPage';
 import DashboardPage from './pages/DashboardPage';
 import PecasSemEstoquePage from './pages/PecasSemEstoquePage';
+import ProdutosVPPage from './pages/ProdutosVPPage';
+import OutrosFornecedoresPage from './pages/OutrosFornecedoresPage';
+import AprovacoesPage from './pages/AprovacoesPage';
+import CartSidebar from './components/CartSidebar';
 import Sidebar from './components/Sidebar';
 
+const PAGE_TITLES = {
+    '/': 'Consultar Peças',
+    '/produtos-vp': 'Produtos VerticalParts',
+    '/outros-fornecedores': 'Outros Fornecedores',
+    '/aprovacoes': 'Alçadas de Aprovação',
+    '/history': 'Histórico de Pedidos',
+    '/sem-estoque': 'Peças Sem Estoque',
+    '/dashboard': 'Dashboard',
+};
+
 function ProtectedRoute({ children }) {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, filial } = useAuth();
     const location = useLocation();
-
-    if (!isAuthenticated) {
-        return <Navigate to="/login" state={{ from: location }} replace />;
-    }
-
+    if (!isAuthenticated) return <Navigate to="/login" state={{ from: location }} replace />;
+    if (!filial) return <Navigate to="/selecionar-filial" replace />;
     return children;
 }
 
-function Layout({ children }) {
+function AuthRoute({ children }) {
+    const { isAuthenticated } = useAuth();
+    if (!isAuthenticated) return <Navigate to="/login" replace />;
+    return children;
+}
+
+function Layout({ children, cart, updateQuantity, removeFromItem, clearCart, cartOpen, setCartOpen, validacaoCarrinho, finalidade, setFinalidade }) {
     const { logout } = useAuth();
+    const location = useLocation();
+    const title = PAGE_TITLES[location.pathname] || 'Portal Escamax';
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
     return (
-        <div className="flex h-screen bg-background text-white overflow-hidden">
+        <div className="flex h-screen overflow-hidden bg-white text-black">
             <Sidebar logout={logout} />
-            <main className="flex-1 overflow-auto relative">
-                <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-                    <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-blue-900/10 blur-[150px]"></div>
-                </div>
-                <div className="relative z-10 p-8">
+            <div className="flex flex-1 flex-col overflow-hidden">
+                <header className="flex h-14 shrink-0 items-center justify-between border-b border-neutral-200 bg-white px-6">
+                    <h1 className="text-sm font-semibold text-black">{title}</h1>
+                    <div className="flex items-center gap-4">
+                        <span className="vp-eyebrow">Portal B2B Escamax</span>
+                        <button
+                            onClick={() => setCartOpen(true)}
+                            className="relative flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 shadow-sm transition hover:border-primary hover:text-primary"
+                            title="Abrir carrinho"
+                        >
+                            <ShoppingCart size={16} />
+                            <span>Carrinho</span>
+                            {totalItems > 0 && (
+                                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-black text-black">
+                                    {totalItems > 9 ? '9+' : totalItems}
+                                </span>
+                            )}
+                        </button>
+                    </div>
+                </header>
+                <main className="flex-1 overflow-y-auto bg-neutral-50 p-6">
                     {children}
-                </div>
-            </main>
+                </main>
+            </div>
+
+            <CartSidebar
+                isOpen={cartOpen}
+                onClose={() => setCartOpen(false)}
+                cart={cart}
+                updateQuantity={updateQuantity}
+                removeFromItem={removeFromItem}
+                clearCart={clearCart}
+                validacaoRef={validacaoCarrinho.validado ? validacaoCarrinho : null}
+                finalidade={finalidade}
+                setFinalidade={setFinalidade}
+            />
         </div>
     );
 }
 
 export default function App() {
+    const { filial } = useAuth();
+
+    // ── Estado do carrinho ────────────────────────────────────────────────────
+    const [cart, setCart] = useState([]);
+    const [cartOpen, setCartOpen] = useState(false);
+
+    const [finalidade, setFinalidade] = useState('Revenda');
+    const [validacaoCarrinho, setValidacaoCarrinho] = useState({ tipo: '', numero: '', validado: false });
+
+    // Reseta pedido e carrinho ao trocar de filial
+    useEffect(() => {
+        setCart([]);
+        setFinalidade('Revenda');
+        setValidacaoCarrinho({ tipo: '', numero: '', validado: false });
+    }, [filial?.id]);
+
+    useEffect(() => {
+        setCart([]);
+        setValidacaoCarrinho({ tipo: '', numero: '', validado: false });
+    }, [finalidade]);
+
+    const addToCart = useCallback((produto) => {
+        const quantidade = Number(produto.quantity || 1);
+        setCart(prev => {
+            const existe = prev.find(i => i.codigo === produto.codigo);
+            if (existe) {
+                return prev.map(i =>
+                    i.codigo === produto.codigo
+                        ? { ...i, quantity: i.quantity + quantidade }
+                        : i
+                );
+            }
+            return [...prev, { ...produto, quantity: quantidade }];
+        });
+    }, []);
+
+    const updateQuantity = useCallback((codigo, delta) => {
+        setCart(prev =>
+            prev
+                .map(i => i.codigo === codigo ? { ...i, quantity: i.quantity + delta } : i)
+                .filter(i => i.quantity > 0)
+        );
+    }, []);
+
+    const removeFromItem = useCallback((codigo) => {
+        setCart(prev => prev.filter(i => i.codigo !== codigo));
+    }, []);
+
+    const clearCart = useCallback(() => setCart([]), []);
+
+    const layoutProps = {
+        cart,
+        updateQuantity,
+        removeFromItem,
+        clearCart,
+        cartOpen,
+        setCartOpen,
+        validacaoCarrinho,
+        finalidade,
+        setFinalidade,
+    };
+
     return (
         <Routes>
             <Route path="/login" element={<LoginPage />} />
+
+            <Route
+                path="/selecionar-filial"
+                element={
+                    <AuthRoute>
+                        <FilialSelectPage />
+                    </AuthRoute>
+                }
+            />
+
             <Route
                 path="/"
                 element={
                     <ProtectedRoute>
-                        <Layout>
-                            <SearchPage />
+                        <Layout {...layoutProps}><SearchPage /></Layout>
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/produtos-vp"
+                element={
+                    <ProtectedRoute>
+                        <Layout {...layoutProps}>
+                            <ProdutosVPPage
+                                cart={cart}
+                                addToCart={addToCart}
+                                finalidade={finalidade}
+                                setFinalidade={setFinalidade}
+                                validacaoCarrinho={validacaoCarrinho}
+                                setValidacaoCarrinho={setValidacaoCarrinho}
+                                onOpenCart={() => setCartOpen(true)}
+                            />
                         </Layout>
                     </ProtectedRoute>
                 }
@@ -54,8 +193,31 @@ export default function App() {
                 path="/history"
                 element={
                     <ProtectedRoute>
-                        <Layout>
-                            <HistoryPage />
+                        <Layout {...layoutProps}><HistoryPage /></Layout>
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/aprovacoes"
+                element={
+                    <ProtectedRoute>
+                        <Layout {...layoutProps}><AprovacoesPage /></Layout>
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/outros-fornecedores"
+                element={
+                    <ProtectedRoute>
+                        <Layout {...layoutProps}>
+                            <OutrosFornecedoresPage
+                                addToCart={addToCart}
+                                finalidade={finalidade}
+                                setFinalidade={setFinalidade}
+                                validacaoCarrinho={validacaoCarrinho}
+                                setValidacaoCarrinho={setValidacaoCarrinho}
+                                onOpenCart={() => setCartOpen(true)}
+                            />
                         </Layout>
                     </ProtectedRoute>
                 }
@@ -64,9 +226,7 @@ export default function App() {
                 path="/dashboard"
                 element={
                     <ProtectedRoute>
-                        <Layout>
-                            <DashboardPage />
-                        </Layout>
+                        <Layout {...layoutProps}><DashboardPage /></Layout>
                     </ProtectedRoute>
                 }
             />
@@ -74,9 +234,7 @@ export default function App() {
                 path="/sem-estoque"
                 element={
                     <ProtectedRoute>
-                        <Layout>
-                            <PecasSemEstoquePage />
-                        </Layout>
+                        <Layout {...layoutProps}><PecasSemEstoquePage /></Layout>
                     </ProtectedRoute>
                 }
             />

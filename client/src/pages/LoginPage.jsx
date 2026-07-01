@@ -1,110 +1,193 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { Mail, KeyRound, ArrowRight, AlertCircle, Check, Loader2 } from 'lucide-react';
+
+const FEATURES = [
+    'Catálogo de peças e estoque em tempo real',
+    'Requisição de compra integrada ao Omie',
+    'Histórico e acompanhamento de pedidos',
+];
 
 export default function LoginPage() {
     const [step, setStep] = useState(1);
     const [email, setEmail] = useState('');
     const [code, setCode] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const { login, verifyCode } = useAuth();
     const navigate = useNavigate();
 
     const handleEmailSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setLoading(true);
         try {
             await login(email);
             setStep(2);
         } catch (err) {
             setError(err.message);
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleCodeSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setLoading(true);
         try {
             await verifyCode(email, code);
             navigate('/');
         } catch (err) {
             setError(err.message);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background relative overflow-hidden">
-            {/* Background Effects */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-accent/20 blur-[120px]"></div>
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-primary/30 blur-[120px]"></div>
+        <div className="grid min-h-screen w-full grid-cols-1 lg:grid-cols-[1fr_1.05fr]">
+
+            {/* ── Painel esquerdo — marca ─────────────────────────── */}
+            <div
+                className="relative hidden flex-col justify-between overflow-hidden bg-surface p-8 text-white lg:flex lg:p-14"
+                style={{ background: 'radial-gradient(circle at 30% 20%, #1c1c1c, #000 65%)' }}
+            >
+                {/* Grade sutil dourada */}
+                <div
+                    className="pointer-events-none absolute inset-0"
+                    style={{
+                        backgroundImage:
+                            'linear-gradient(rgba(245,196,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(245,196,0,0.05) 1px, transparent 1px)',
+                        backgroundSize: '40px 40px',
+                        maskImage: 'radial-gradient(circle at 30% 30%, #000 40%, transparent 80%)',
+                    }}
+                />
+                {/* Círculo decorativo */}
+                <div className="pointer-events-none absolute right-[-120px] top-1/2 h-[360px] w-[360px] -translate-y-1/2 rounded-full border-2 border-primary/20" />
+
+                <div className="relative z-10">
+                    <img src="/logo-white.png" alt="VerticalParts" className="h-9 object-contain" />
+                </div>
+
+                <div className="relative z-10">
+                    <span className="vp-eyebrow !text-primary">Acesso corporativo</span>
+                    <h1 className="mt-4 font-display text-3xl leading-[1.1] md:text-4xl lg:text-[44px]">
+                        Portal de compras<br />da <span className="text-primary">Escamax.</span>
+                    </h1>
+                    <p className="mt-4 max-w-md text-base leading-relaxed text-slate-300">
+                        Consulte estoque, monte requisições e acompanhe pedidos junto à VerticalParts em um só lugar.
+                    </p>
+
+                    <ul className="mt-8 flex flex-col gap-3.5">
+                        {FEATURES.map((f) => (
+                            <li key={f} className="flex items-center gap-3 text-sm text-slate-300">
+                                <Check className="h-4 w-4 shrink-0 text-primary" strokeWidth={3} />
+                                {f}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+
+                <div className="relative z-10 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-600">
+                    © {new Date().getFullYear()} VerticalParts · Escamax
+                </div>
             </div>
 
-            <div className="glass-panel p-8 rounded-2xl w-full max-w-md z-10 mx-4">
-                <h2 className="text-3xl font-bold text-center mb-2 bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
-                    Portal Escamax
-                </h2>
-                <p className="text-slate-400 text-center mb-8">Acesso Exclusivo Administrativo</p>
+            {/* ── Painel direito — formulário ─────────────────────── */}
+            <div className="flex items-center justify-center bg-white p-8 lg:p-14">
+                <div className="w-full max-w-[440px]">
+                    {/* Logo no topo (mobile/branco) */}
+                    <img src="/logo-color.png" alt="VerticalParts" className="mb-8 h-8 object-contain lg:hidden" />
 
-                {error && (
-                    <div className="bg-red-500/10 border border-red-500/20 text-red-200 p-3 rounded-lg mb-4 text-sm text-center">
-                        {error}
+                    <div className="mb-8">
+                        <span className="vp-eyebrow">Portal Escamax</span>
+                        <h2 className="mt-3 font-display text-3xl leading-tight text-black">
+                            {step === 1 ? 'Entrar na plataforma' : 'Verificar acesso'}
+                        </h2>
+                        <p className="mt-2 text-sm leading-relaxed text-neutral-600">
+                            {step === 1
+                                ? 'Use seu e-mail corporativo autorizado para receber o código de acesso.'
+                                : <>Enviamos um código de 6 dígitos para <strong className="text-black">{email}</strong>.</>}
+                        </p>
                     </div>
-                )}
 
-                {step === 1 ? (
-                    <form onSubmit={handleEmailSubmit} className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-slate-300 mb-1">E-mail</label>
-                            <input
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all"
-                                placeholder="adm@escamax.com.br"
-                                required
-                            />
+                    {error && (
+                        <div className="mb-4 flex items-start gap-2.5 rounded border-l-[3px] border-red-600 bg-red-50 p-3.5 text-sm text-red-700">
+                            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                            {error}
                         </div>
-                        <button
-                            type="submit"
-                            className="w-full bg-accent hover:bg-sky-500 text-slate-900 font-bold py-2 rounded-lg transition-all shadow-lg shadow-accent/20"
-                        >
-                            Solicitar Acesso
-                        </button>
-                    </form>
-                ) : (
-                    <form onSubmit={handleCodeSubmit} className="space-y-4">
-                        <div className="text-center mb-4">
-                            <p className="text-sm text-slate-400">Código enviado para</p>
-                            <p className="text-white font-medium">{email}</p>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-slate-300 mb-1">Código de 6 dígitos</label>
-                            <input
-                                type="text"
-                                value={code}
-                                onChange={(e) => setCode(e.target.value)}
-                                className="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-2 text-white text-center text-2xl tracking-widest focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all"
-                                placeholder="000000"
-                                maxLength="6"
-                                required
-                            />
-                        </div>
-                        <button
-                            type="submit"
-                            className="w-full bg-accent hover:bg-sky-500 text-slate-900 font-bold py-2 rounded-lg transition-all shadow-lg shadow-accent/20"
-                        >
-                            Validar Token
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setStep(1)}
-                            className="w-full text-slate-400 text-sm hover:text-white transition-colors"
-                        >
-                            Voltar
-                        </button>
-                    </form>
-                )}
+                    )}
+
+                    {step === 1 ? (
+                        <form onSubmit={handleEmailSubmit}>
+                            <div className="mb-4">
+                                <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.16em] text-neutral-700">E-mail</label>
+                                <div className="relative">
+                                    <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400">
+                                        <Mail className="h-4 w-4" />
+                                    </span>
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        autoComplete="email"
+                                        required
+                                        placeholder="adm@escamax.com.br"
+                                        className="w-full rounded border border-neutral-200 bg-white py-3.5 pl-11 pr-3.5 text-sm text-black outline-none transition focus:border-primary focus:ring-[3px] focus:ring-primary/20"
+                                    />
+                                </div>
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="inline-flex h-12 w-full items-center justify-center gap-2.5 rounded bg-primary px-6 text-sm font-bold text-black transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary-light hover:shadow-brand active:translate-y-0 active:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60 disabled:!translate-y-0"
+                            >
+                                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                                Solicitar Acesso
+                                {!loading && <ArrowRight className="h-4 w-4" />}
+                            </button>
+                        </form>
+                    ) : (
+                        <form onSubmit={handleCodeSubmit}>
+                            <div className="mb-4">
+                                <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.16em] text-neutral-700">Código de 6 dígitos</label>
+                                <div className="relative">
+                                    <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400">
+                                        <KeyRound className="h-4 w-4" />
+                                    </span>
+                                    <input
+                                        type="text"
+                                        value={code}
+                                        onChange={(e) => setCode(e.target.value)}
+                                        inputMode="numeric"
+                                        maxLength="6"
+                                        required
+                                        placeholder="000000"
+                                        className="w-full rounded border border-neutral-200 bg-white py-3.5 pl-11 pr-3.5 text-center text-2xl font-bold tracking-[0.4em] text-black outline-none transition focus:border-primary focus:ring-[3px] focus:ring-primary/20"
+                                    />
+                                </div>
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="inline-flex h-12 w-full items-center justify-center gap-2.5 rounded bg-primary px-6 text-sm font-bold text-black transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary-light hover:shadow-brand active:translate-y-0 active:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60 disabled:!translate-y-0"
+                            >
+                                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                                Validar Token
+                                {!loading && <ArrowRight className="h-4 w-4" />}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => { setStep(1); setError(''); }}
+                                className="mt-6 w-full text-center text-[13px] font-semibold text-neutral-600 transition-colors hover:text-black"
+                            >
+                                ← Usar outro e-mail
+                            </button>
+                        </form>
+                    )}
+                </div>
             </div>
         </div>
     );

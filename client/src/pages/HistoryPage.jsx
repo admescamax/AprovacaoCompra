@@ -1,39 +1,48 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { CheckCircle, XCircle, Clock, ChevronDown, ChevronUp, Package, Calendar, Filter, RefreshCw, Building2 } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, ChevronDown, ChevronUp, Package, Calendar, Filter, RefreshCw, Building2, CreditCard } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
 function StatusBadge({ status, numero, label }) {
     if (status === 'ok') return (
         <div className="flex items-center gap-1.5">
-            <CheckCircle size={16} className="text-emerald-400 shrink-0" />
+            <CheckCircle size={16} className="text-green-600 shrink-0" />
             <div>
-                <p className="text-xs text-slate-400 leading-none mb-0.5">{label}</p>
-                <p className="text-sm font-semibold text-emerald-400">Nº {numero ?? '—'}</p>
+                <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-[0.1em] leading-none mb-0.5">{label}</p>
+                <p className="text-sm font-bold text-green-600">Nº {numero ?? '—'}</p>
             </div>
         </div>
     );
     if (status === 'erro') return (
         <div className="flex items-center gap-1.5">
-            <XCircle size={16} className="text-red-400 shrink-0" />
+            <XCircle size={16} className="text-danger shrink-0" />
             <div>
-                <p className="text-xs text-slate-400 leading-none mb-0.5">{label}</p>
-                <p className="text-sm font-semibold text-red-400">Erro</p>
+                <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-[0.1em] leading-none mb-0.5">{label}</p>
+                <p className="text-sm font-bold text-danger">Erro</p>
             </div>
         </div>
     );
     return (
         <div className="flex items-center gap-1.5">
-            <Clock size={16} className="text-slate-500 shrink-0" />
+            <Clock size={16} className="text-neutral-400 shrink-0" />
             <div>
-                <p className="text-xs text-slate-400 leading-none mb-0.5">{label}</p>
-                <p className="text-sm font-semibold text-slate-500">Pendente</p>
+                <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-[0.1em] leading-none mb-0.5">{label}</p>
+                <p className="text-sm font-bold text-neutral-400">Pendente</p>
             </div>
         </div>
     );
 }
 
-function OrderRow({ order }) {
+const BRL = value => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(value || 0));
+
+function formatDateBR(value) {
+    if (!value) return '-';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '-';
+    return date.toLocaleDateString('pt-BR');
+}
+
+function OrderRow({ order, onAudit, auditing }) {
     const [expanded, setExpanded] = useState(false);
     const date = new Date(order.criadoEm);
     const dateStr = date.toLocaleDateString('pt-BR');
@@ -41,9 +50,11 @@ function OrderRow({ order }) {
 
     const overallOk = order.pedido_compra?.status === 'ok' && order.pedido_venda?.status === 'ok';
     const overallErr = order.pedido_compra?.status === 'erro' || order.pedido_venda?.status === 'erro';
+    const contasPagar = order.financeiro?.compra || null;
+    const auditoria = order.auditoria_omie || null;
 
     return (
-        <div className={`rounded-xl border transition-all ${overallOk ? 'border-emerald-500/20 bg-emerald-500/5' : overallErr ? 'border-red-500/20 bg-red-500/5' : 'border-slate-700/50 bg-slate-800/40'}`}>
+        <div className={`rounded-xl border shadow-card transition-colors ${overallOk ? 'border-green-200 bg-green-50/40' : overallErr ? 'border-red-200 bg-red-50/40' : 'border-neutral-200 bg-white'}`}>
             {/* Header row */}
             <button
                 onClick={() => setExpanded(e => !e)}
@@ -51,22 +62,22 @@ function OrderRow({ order }) {
             >
                 {/* Date */}
                 <div className="shrink-0 w-28">
-                    <p className="text-sm font-semibold text-white">{dateStr}</p>
-                    <p className="text-xs text-slate-400">{timeStr}</p>
+                    <p className="text-sm font-bold text-black">{dateStr}</p>
+                    <p className="text-xs text-neutral-500">{timeStr}</p>
                 </div>
 
                 {/* Unidade */}
                 <div className="shrink-0 w-28">
-                    <p className="text-xs text-slate-400 mb-0.5">Unidade</p>
-                    <span className="inline-block text-xs font-bold px-2 py-0.5 rounded-md bg-sky-500/15 text-sky-400 border border-sky-500/25">
+                    <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-[0.1em] mb-0.5">Unidade</p>
+                    <span className="inline-block text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-0.5 rounded bg-primary/15 text-primary-dark border border-primary/30">
                         {order.unidade}
                     </span>
                 </div>
 
                 {/* Itens */}
                 <div className="shrink-0 w-16 text-center">
-                    <p className="text-xs text-slate-400 mb-0.5">Itens</p>
-                    <p className="text-sm font-semibold text-white">{order.itens?.length ?? 0}</p>
+                    <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-[0.1em] mb-0.5">Itens</p>
+                    <p className="text-sm font-bold text-black">{order.itens?.length ?? 0}</p>
                 </div>
 
                 {/* Status Compra (Escamax) */}
@@ -88,37 +99,101 @@ function OrderRow({ order }) {
                 </div>
 
                 {/* Expand chevron */}
-                <div className="shrink-0 text-slate-500">
+                <div className="shrink-0 text-neutral-400">
                     {expanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                 </div>
             </button>
 
             {/* Expanded detail */}
             {expanded && (
-                <div className="px-5 pb-4 border-t border-slate-700/40 pt-3">
+                <div className="px-5 pb-4 border-t border-neutral-200 pt-3">
                     {/* Erros */}
                     {order.pedido_compra?.status === 'erro' && (
-                        <div className="mb-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                            <p className="text-xs font-semibold text-red-400 mb-1">Detalhe do erro — Req. Compra Escamax</p>
-                            <p className="text-xs text-slate-300 break-words">{order.pedido_compra.detalhe}</p>
+                        <div className="mb-3 p-3 rounded bg-red-50 border border-red-200">
+                            <p className="text-[11px] font-bold text-danger uppercase tracking-[0.1em] mb-1">Detalhe do erro — Req. Compra Escamax</p>
+                            <p className="text-xs text-neutral-700 break-words">{order.pedido_compra.detalhe}</p>
                         </div>
                     )}
                     {order.pedido_venda?.status === 'erro' && (
-                        <div className="mb-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                            <p className="text-xs font-semibold text-red-400 mb-1">Detalhe do erro — Pedido Venda VP</p>
-                            <p className="text-xs text-slate-300 break-words">{order.pedido_venda.detalhe}</p>
+                        <div className="mb-3 p-3 rounded bg-red-50 border border-red-200">
+                            <p className="text-[11px] font-bold text-danger uppercase tracking-[0.1em] mb-1">Detalhe do erro — Pedido Venda VP</p>
+                            <p className="text-xs text-neutral-700 break-words">{order.pedido_venda.detalhe}</p>
+                        </div>
+                    )}
+
+                    {contasPagar?.status === 'confirmado_por_pedido_compra' && (
+                        <div className="mb-3 p-3 rounded bg-green-50 border border-green-200">
+                            <div className="flex items-center gap-2 mb-2">
+                                <CreditCard size={14} className="text-green-700 shrink-0" />
+                                <p className="text-[11px] font-bold text-green-700 uppercase tracking-[0.1em]">
+                                    Contas a pagar Escamax para VerticalParts
+                                </p>
+                            </div>
+                            <p className="text-xs font-semibold text-green-800">
+                                Lastro: Pedido de Compra Nº {contasPagar.pedidoCompraNumero || order.pedido_compra?.numero || '-'} · {BRL(contasPagar.total)} em {contasPagar.qtdeParcelas} parcela(s)
+                            </p>
+                            <div className="mt-2 grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
+                                {(contasPagar.parcelas || []).map(parcela => (
+                                    <div key={parcela.numero} className="rounded border border-green-100 bg-white px-2 py-1 text-[11px] font-semibold text-green-900">
+                                        {parcela.numero}/{contasPagar.qtdeParcelas} · {BRL(parcela.valor)} · {formatDateBR(parcela.data)}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="mb-3 flex justify-end">
+                        <button
+                            type="button"
+                            onClick={() => onAudit(order)}
+                            disabled={auditing}
+                            className="inline-flex items-center gap-2 rounded border border-neutral-200 bg-white px-3 py-1.5 text-xs font-bold text-neutral-700 transition hover:border-primary disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            <RefreshCw size={13} className={auditing ? 'animate-spin' : ''} />
+                            Reauditar Omie
+                        </button>
+                    </div>
+
+                    {auditoria && (
+                        <div className={`mb-3 p-3 rounded border ${auditoria.status === 'verificado' ? 'bg-blue-50 border-blue-200' : 'bg-amber-50 border-amber-200'}`}>
+                            <p className={`text-[11px] font-bold uppercase tracking-[0.1em] mb-1 ${auditoria.status === 'verificado' ? 'text-blue-700' : 'text-amber-700'}`}>
+                                Auditoria Omie
+                            </p>
+                            {auditoria.status === 'verificado' ? (
+                                <div className="grid gap-2 text-xs font-semibold text-blue-900 sm:grid-cols-2">
+                                    <div>
+                                        Compra Escamax: {auditoria.compraEscamax?.existe ? 'localizada' : 'não localizada'} · {auditoria.compraEscamax?.parcelas || '-'} parcela(s)
+                                    </div>
+                                    <div>
+                                        Venda VP: {auditoria.vendaVerticalParts?.existe ? 'localizada' : 'não localizada'} · etapa {auditoria.vendaVerticalParts?.etapa || '-'}
+                                    </div>
+                                </div>
+                            ) : (
+                                <p className="text-xs font-semibold text-amber-800">{auditoria.detalhe || 'Verificação pendente.'}</p>
+                            )}
+                        </div>
+                    )}
+
+                    {order.pedido_venda?.etapa_sync_status === 'erro' && (
+                        <div className="mb-3 p-3 rounded bg-amber-50 border border-amber-200">
+                            <p className="text-[11px] font-bold text-amber-700 uppercase tracking-[0.1em] mb-1">
+                                Sincronização de etapa VP pendente
+                            </p>
+                            <p className="text-xs font-semibold text-amber-800">
+                                {order.pedido_venda.etapa_sync_detalhe || 'A etapa do Pedido de Venda VP precisa ser revisada no Omie.'}
+                            </p>
                         </div>
                     )}
 
                     {/* Itens */}
-                    <p className="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wide">Itens do pedido</p>
+                    <p className="text-[11px] font-bold text-neutral-400 mb-2 uppercase tracking-[0.1em]">Itens do pedido</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                         {(order.itens || []).map((item, i) => (
-                            <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800/60 border border-slate-700/40">
-                                <Package size={14} className="text-slate-500 shrink-0" />
+                            <div key={i} className="flex items-center gap-2 px-3 py-2 rounded bg-neutral-50 border border-neutral-200">
+                                <Package size={14} className="text-neutral-400 shrink-0" />
                                 <div className="min-w-0">
-                                    <p className="text-xs font-mono text-sky-400 truncate">{item.codigo}</p>
-                                    <p className="text-xs text-slate-400">{item.quantidade}× · R$ {Number(item.preco_unitario || 0).toFixed(2)}</p>
+                                    <p className="text-xs font-mono text-primary-dark truncate">{item.codigo}</p>
+                                    <p className="text-[11px] text-neutral-500">{item.quantidade}× · R$ {Number(item.preco_unitario || 0).toFixed(2)}</p>
                                 </div>
                             </div>
                         ))}
@@ -134,6 +209,8 @@ export default function HistoryPage() {
     const [allOrders, setAllOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [auditError, setAuditError] = useState('');
+    const [auditingId, setAuditingId] = useState('');
     const [lastUpdated, setLastUpdated] = useState(null);
 
     // Filtros de data
@@ -184,16 +261,38 @@ export default function HistoryPage() {
 
     const handleFiltrar = () => fetchOrders(de, ate);
 
+    const handleAudit = async (order) => {
+        setAuditError('');
+        setAuditingId(order.id);
+        try {
+            const res = await fetch(`${API_BASE}/api/orders/${encodeURIComponent(order.id)}/auditoria-omie`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok && res.status !== 202) {
+                throw new Error(data.error || `Erro ${res.status}`);
+            }
+            await fetchOrders(de, ate);
+        } catch (e) {
+            setAuditError(e.message || 'Erro ao reauditar pedido.');
+        } finally {
+            setAuditingId('');
+        }
+    };
+
+    const inputCls = "bg-white border border-neutral-200 rounded px-3 py-1.5 text-sm text-black outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20 transition";
+
     return (
         <div className="max-w-5xl mx-auto">
             {/* Header */}
             <div className="mb-6 flex items-start justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-white mb-1">Histórico de Pedidos</h1>
-                    <p className="text-sm text-slate-400">
+                    <h1 className="font-display text-2xl text-black">Histórico de Pedidos</h1>
+                    <p className="text-sm text-neutral-500 mt-0.5">
                         Acompanhe o status de cada pedido nas contas Omie.
                         {lastUpdated && (
-                            <span className="ml-2 text-slate-600">
+                            <span className="ml-2 text-neutral-400">
                                 Atualizado às {lastUpdated.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                             </span>
                         )}
@@ -203,47 +302,37 @@ export default function HistoryPage() {
                 <button
                     onClick={handleFiltrar}
                     disabled={loading}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-all disabled:opacity-50 shrink-0"
+                    className="flex items-center gap-2 px-3 py-2 rounded bg-white hover:bg-neutral-50 text-neutral-700 text-sm font-semibold border border-neutral-200 transition-colors disabled:opacity-50 shrink-0"
                     title="Buscar pedidos novamente"
                 >
-                    <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
+                    <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
                     Atualizar
                 </button>
             </div>
 
             {/* Filtros */}
-            <div className="flex flex-wrap items-end gap-3 mb-6 p-4 rounded-xl bg-slate-800/50 border border-slate-700/50">
-                <Filter size={16} className="text-slate-500 self-center" />
+            <div className="flex flex-wrap items-end gap-3 mb-6 p-4 rounded-xl border border-neutral-200 bg-white shadow-card">
+                <Filter size={16} className="text-neutral-400 self-center" />
 
                 {/* Filtro por data */}
                 <div className="flex items-center gap-2">
-                    <Calendar size={15} className="text-slate-500" />
-                    <label className="text-xs text-slate-400">De</label>
-                    <input
-                        type="date"
-                        value={de}
-                        onChange={e => setDe(e.target.value)}
-                        className="bg-slate-900 border border-slate-600 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-sky-500"
-                    />
+                    <Calendar size={15} className="text-neutral-400" />
+                    <label className="text-[11px] font-bold text-neutral-500 uppercase tracking-[0.1em]">De</label>
+                    <input type="date" value={de} onChange={e => setDe(e.target.value)} className={inputCls} />
                 </div>
                 <div className="flex items-center gap-2">
-                    <label className="text-xs text-slate-400">Até</label>
-                    <input
-                        type="date"
-                        value={ate}
-                        onChange={e => setAte(e.target.value)}
-                        className="bg-slate-900 border border-slate-600 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-sky-500"
-                    />
+                    <label className="text-[11px] font-bold text-neutral-500 uppercase tracking-[0.1em]">Até</label>
+                    <input type="date" value={ate} onChange={e => setAte(e.target.value)} className={inputCls} />
                 </div>
 
                 {/* Filtro por unidade */}
                 <div className="flex items-center gap-2">
-                    <Building2 size={15} className="text-slate-500" />
-                    <label className="text-xs text-slate-400">Unidade</label>
+                    <Building2 size={15} className="text-neutral-400" />
+                    <label className="text-[11px] font-bold text-neutral-500 uppercase tracking-[0.1em]">Unidade</label>
                     <select
                         value={unidadeFiltro}
                         onChange={e => setUnidadeFiltro(e.target.value)}
-                        className="bg-slate-900 border border-slate-600 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-sky-500 cursor-pointer"
+                        className={`${inputCls} cursor-pointer`}
                     >
                         {unidades.map(u => (
                             <option key={u} value={u}>{u}</option>
@@ -253,7 +342,7 @@ export default function HistoryPage() {
 
                 <button
                     onClick={handleFiltrar}
-                    className="ml-auto px-4 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-sm font-semibold text-white transition-colors"
+                    className="ml-auto px-4 py-1.5 rounded bg-primary hover:bg-primary-light text-sm font-bold text-black transition-colors"
                 >
                     Filtrar
                 </button>
@@ -261,7 +350,7 @@ export default function HistoryPage() {
 
             {/* Contador de resultados */}
             {!loading && !error && allOrders.length > 0 && (
-                <p className="text-xs text-slate-500 mb-3">
+                <p className="text-xs text-neutral-400 mb-3">
                     {orders.length === allOrders.length
                         ? `${allOrders.length} pedido(s) no período`
                         : `${orders.length} de ${allOrders.length} pedido(s) · filtrado por ${unidadeFiltro}`}
@@ -272,20 +361,25 @@ export default function HistoryPage() {
             {loading && (
                 <div className="space-y-3">
                     {[1, 2, 3].map(i => (
-                        <div key={i} className="h-20 rounded-xl bg-slate-800/40 border border-slate-700/50 animate-pulse" />
+                        <div key={i} className="h-20 rounded-xl bg-white border border-neutral-200 animate-pulse" />
                     ))}
                 </div>
             )}
             {error && (
-                <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center justify-between gap-4">
+                <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-danger text-sm font-semibold flex items-center justify-between gap-4">
                     <span>Erro ao carregar pedidos: {error}</span>
-                    <button onClick={handleFiltrar} className="px-3 py-1 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-xs font-semibold transition-colors shrink-0">
+                    <button onClick={handleFiltrar} className="px-3 py-1 rounded bg-red-100 hover:bg-red-200 text-xs font-bold transition-colors shrink-0">
                         Tentar novamente
                     </button>
                 </div>
             )}
+            {auditError && (
+                <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">
+                    {auditError}
+                </div>
+            )}
             {!loading && !error && orders.length === 0 && (
-                <div className="text-center py-16 text-slate-500">
+                <div className="text-center py-16 text-neutral-400">
                     <Package size={40} className="mx-auto mb-3 opacity-30" />
                     <p className="text-sm">
                         {allOrders.length === 0
@@ -297,7 +391,7 @@ export default function HistoryPage() {
             {!loading && !error && orders.length > 0 && (
                 <div className="space-y-3">
                     {orders.map(order => (
-                        <OrderRow key={order.id} order={order} />
+                        <OrderRow key={order.id} order={order} onAudit={handleAudit} auditing={auditingId === order.id} />
                     ))}
                 </div>
             )}
